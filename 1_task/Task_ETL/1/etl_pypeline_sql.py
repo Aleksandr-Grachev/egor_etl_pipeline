@@ -43,7 +43,7 @@ with DAG(
     description = "Загрузка данных",
     catchup = False,
     template_searchpath = [PATH],
-    schedule = "0 0 * * *"
+    # schedule = "0 0 * * *"
 ) as dag:
 
     start = DummyOperator(
