@@ -8,8 +8,7 @@ CREATE TABLE IF NOT EXISTS "DS".ft_balance_f(
 	CONSTRAINT BALANCE_PKEY PRIMARY KEY (ON_DATE, ACCOUNT_RK)
 );
 
-DROP TABLE IF EXISTS "DS".ft_posting_f;
-CREATE TABLE "DS".ft_posting_f(
+CREATE TABLE IF NOT EXISTS "DS".ft_posting_f(
 	oper_date         DATE NOT NULL,
     credit_account_rk INT8 NOT NULL,
     debet_account_rk  INT8 NOT NULL,
