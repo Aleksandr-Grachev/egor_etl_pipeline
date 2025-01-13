@@ -6,7 +6,8 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.configuration import conf
 from airflow.models import Variable
 
-from datetime import datetime
+from datetime import datetime, timedelta
+
 import pandas as pd
 import chardet
 
@@ -15,7 +16,7 @@ PATH = Variable.get("my_path")
 conf.set("core", "template_searchpath", PATH)
 
 def insert_data(table_name):
-    file_path = f"{PATH}{table_name}.csv"
+    file_path = f"{PATH}/csv/task1/{table_name}.csv"
     
     with open(file_path, 'rb') as file:
         raw_data = file.read()
@@ -25,7 +26,7 @@ def insert_data(table_name):
 
     df = pd.read_csv(file_path, delimiter=";", encoding=encoding)
 
-    postgres_hook = PostgresHook("postgres-db")
+    postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
 
 
@@ -34,16 +35,17 @@ def insert_data(table_name):
 default_args= {
     "owner" : "egor",
     "start_date" :  datetime(2024,12,23),
-    "retries" : 2
-}
+    "retries" : 2,
+    "retry_delay": timedelta(seconds=7)
+} 
 
-with DAG(
+with DAG( 
     "etl_pypeline_sql",
     default_args= default_args,
     description = "Загрузка данных",
     catchup = False,
     template_searchpath = [PATH],
-    # schedule = "0 0 * * *"
+    schedule_interval=None
 ) as dag:
 
     start = DummyOperator(
@@ -52,8 +54,8 @@ with DAG(
 
     sql_trunc_stage = SQLExecuteQueryOperator(
         task_id="sql_trunc_stage",
-        conn_id="postgres-db",
-        sql = "sql/sql_trunc_stage.sql"
+        conn_id="postgres_db",
+        sql = "sql/task1/sql_trunc_stage.sql"
     )
 
     ft_balance_f = PythonOperator(
@@ -96,46 +98,46 @@ with DAG(
         task_id="split"
     )
 
-    sql_create_table = SQLExecuteQueryOperator(
-        task_id="sql_create_table",
-        conn_id="postgres-db",
-        sql = "sql/sql_create_table.sql"
-    )
+    # sql_create_table = SQLExecuteQueryOperator(
+    #     task_id="sql_create_table",
+    #     conn_id="postgres_db",
+    #     sql = "sql/task1/sql_create_table.sql"
+    # )
 
     sql_ft_balance_f = SQLExecuteQueryOperator(
         task_id="sql_ft_balance_f",
-        conn_id="postgres-db",
-        sql = "sql/ft_balance_f.sql"
+        conn_id="postgres_db",
+        sql = "sql/task1/t_balance_f.sql"
     )
 
     sql_ft_posting_f = SQLExecuteQueryOperator(
         task_id="sql_ft_posting_f",
-        conn_id="postgres-db",
-        sql = "sql/ft_posting_f.sql"
+        conn_id="postgres_db",
+        sql = "sql/task1/ft_posting_f.sql"
     )
 
     sql_md_account_d = SQLExecuteQueryOperator(
         task_id="sql_md_account_d",
-        conn_id="postgres-db",
+        conn_id="postgres_db",
         sql = "sql/md_account_d.sql"
     )
 
     sql_md_currency_d = SQLExecuteQueryOperator(
         task_id="sql_md_currency_d",
-        conn_id="postgres-db",
-        sql = "sql/md_currency_d.sql"
+        conn_id="postgres_db",
+        sql = "sql/task1/md_currency_d.sql"
     )
 
     sql_md_exchange_rate_d = SQLExecuteQueryOperator(
         task_id="sql_md_exchange_rate_d",
-        conn_id="postgres-db",
-        sql = "sql/md_exchange_rate_d.sql"
+        conn_id="postgres_db",
+        sql = "sql/task1/md_exchange_rate_d.sql"
     )
 
     sql_md_ledger_account_s = SQLExecuteQueryOperator(
         task_id="sql_md_ledger_account_s",
-        conn_id="postgres-db",
-        sql = "sql/md_ledger_account_s.sql"
+        conn_id="postgres_db",
+        sql = "sql/task1/md_ledger_account_s.sql"
     )
 
     end = DummyOperator(
@@ -147,7 +149,7 @@ with DAG(
         >> sql_trunc_stage
         >> [ft_balance_f, ft_posting_f, md_account_d, md_currency_d, md_exchange_rate_d, md_ledger_account_s]
         >> split
-        >> sql_create_table
+        #>> sql_create_table
         >>[sql_ft_balance_f, sql_ft_posting_f, sql_md_account_d, sql_md_currency_d, sql_md_exchange_rate_d, sql_md_ledger_account_s]
         >> end
     )

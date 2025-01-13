@@ -2,11 +2,11 @@ from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.operators.python_operator import PythonOperator
-from sqlalchemy.sql import text
-from airflow.configuration import conf
 from airflow.models import Variable
-
-from datetime import datetime
+from airflow.configuration import conf
+#from sqlalchemy.sql import text
+from sqlalchemy import text
+from datetime import datetime, timedelta
 import pandas as pd
 import time
 
@@ -14,10 +14,9 @@ PATH = Variable.get("my_path")
 
 conf.set("core", "template_searchpath", PATH)
 
-
 def log_etl_process(connection, process_name, start_time, end_time, status, rows_processed, error_message=None):
     insert_log_query = """
-    INSERT INTO "LOGS".ETL_LOG (process_name, start_time, end_time, status, rows_processed, ERROR_MESSAGE)
+    INSERT INTO LOGS.ETL_LOG (process_name, start_time, end_time, status, rows_processed, ERROR_MESSAGE)
     VALUES (:process_name, :start_time, :end_time, :status, :rows_processed, :error_message);
     """
     connection.execute(text(insert_log_query), {
@@ -30,10 +29,9 @@ def log_etl_process(connection, process_name, start_time, end_time, status, rows
     })
 
 def load_ft_balance_f():
-    file_path = f"{PATH}/ft_balance_f.csv"
-    postgres_hook = PostgresHook("postgres-db")
+    postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1/ft_balance_f.csv", delimiter=";", encoding="utf-8")
 
     
     df['ON_DATE'] = pd.to_datetime(df['ON_DATE'], format='%d.%m.%Y').dt.date
@@ -42,7 +40,7 @@ def load_ft_balance_f():
     df = df.dropna(subset=['ON_DATE', 'ACCOUNT_RK'])
 
     upsert_query = """
-    INSERT INTO "DS".FT_BALANCE_F (ON_DATE, ACCOUNT_RK, CURRENCY_RK, BALANCE_OUT)
+    INSERT INTO DS.FT_BALANCE_F (ON_DATE, ACCOUNT_RK, CURRENCY_RK, BALANCE_OUT)
     VALUES (:on_date, :account_rk, :currency_rk, :balance_out)
     ON CONFLICT (ON_DATE, ACCOUNT_RK) 
     DO UPDATE SET 
@@ -91,18 +89,17 @@ def load_ft_balance_f():
 
 
 def load_ft_posting_f():
-    file_path = f"{PATH}/ft_posting_f.csv"
-    postgres_hook = PostgresHook("postgres-db")
+    postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1/ft_posting_f.csv", delimiter=";", encoding="utf-8")
     
     df['OPER_DATE'] = pd.to_datetime(df['OPER_DATE'], format='%d-%m-%Y').dt.date
     df = df.where(pd.notnull(df), None)
 
-    clear_query = 'TRUNCATE TABLE "DS".FT_POSTING_F;'
+    clear_query = 'TRUNCATE TABLE DS.FT_POSTING_F;'
 
     insert_query = """
-    INSERT INTO "DS".FT_POSTING_F (OPER_DATE, CREDIT_ACCOUNT_RK, DEBET_ACCOUNT_RK, CREDIT_AMOUNT, DEBET_AMOUNT)
+    INSERT INTO DS.FT_POSTING_F (OPER_DATE, CREDIT_ACCOUNT_RK, DEBET_ACCOUNT_RK, CREDIT_AMOUNT, DEBET_AMOUNT)
     VALUES (:oper_date, :credit_account_rk, :debet_account_rk, :credit_amount, :debet_amount);
     """
 
@@ -145,15 +142,12 @@ def load_ft_posting_f():
             log_etl_process(connection, process_name, start_time, datetime.now(), "Failed", 0, str(e))
             raise
 
-
-
 #-----------------------
 
 def load_md_account_d():
-    file_path = f"{PATH}/md_account_d.csv"
-    postgres_hook = PostgresHook("postgres-db")
+    postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1/md_account_d.csv", delimiter=";", encoding="utf-8")
 
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
     df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d').dt.date
@@ -162,7 +156,7 @@ def load_md_account_d():
     df = df.dropna(subset=['ACCOUNT_RK', 'DATA_ACTUAL_DATE'])  
 
     upsert_query = """
-    INSERT INTO "DS".MD_ACCOUNT_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, ACCOUNT_RK, ACCOUNT_NUMBER, CHAR_TYPE, CURRENCY_RK, CURRENCY_CODE)
+    INSERT INTO DS.MD_ACCOUNT_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, ACCOUNT_RK, ACCOUNT_NUMBER, CHAR_TYPE, CURRENCY_RK, CURRENCY_CODE)
     VALUES (:data_actual_date, :data_actual_end_date, :account_rk, :account_number, :char_type, :currency_rk, :currency_code)
     ON CONFLICT (DATA_ACTUAL_DATE, ACCOUNT_RK) 
     DO UPDATE SET 
@@ -216,14 +210,13 @@ def load_md_account_d():
 
 
 def load_md_currency_d():
-    file_path = f"{PATH}/md_currency_d.csv"
-    postgres_hook = PostgresHook("postgres-db")
+    postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
     df = pd.read_csv(
-        file_path,
+        f"{PATH}/csv/task1/md_currency_d.csv",
         delimiter=";",
         encoding="windows-1252",
-        dtype={"CURRENCY_CODE": str}
+        dtype={"CURRENCY_CODE": str}  # сохранение ведущих нулей
     )
 
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
@@ -234,7 +227,7 @@ def load_md_currency_d():
     df = df.dropna(subset=['CURRENCY_RK', 'DATA_ACTUAL_DATE'])  
 
     upsert_query = """
-    INSERT INTO "DS".MD_CURRENCY_D (CURRENCY_RK, DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_CODE, CODE_ISO_CHAR)
+    INSERT INTO DS.MD_CURRENCY_D (CURRENCY_RK, DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_CODE, CODE_ISO_CHAR)
     VALUES (:currency_rk, :data_actual_date, :data_actual_end_date, :currency_code, :code_iso_char)
     ON CONFLICT (CURRENCY_RK, DATA_ACTUAL_DATE)
     DO UPDATE SET
@@ -285,11 +278,10 @@ def load_md_currency_d():
 
 
 def load_md_exchange_rate_d():
-    file_path = f"{PATH}/md_exchange_rate_d.csv"
-    postgres_hook = PostgresHook("postgres-db")
+    postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
     
-    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1/md_exchange_rate_d.csv", delimiter=";", encoding="utf-8")
     
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
     df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -303,7 +295,7 @@ def load_md_exchange_rate_d():
         return
 
     upsert_query = """
-    INSERT INTO "DS".MD_EXCHANGE_RATE_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_RK, REDUCED_COURCE, CODE_ISO_NUM)
+    INSERT INTO DS.MD_EXCHANGE_RATE_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_RK, REDUCED_COURCE, CODE_ISO_NUM)
     VALUES (:data_actual_date, :data_actual_end_date, :currency_rk, :reduced_cource, :code_iso_num)
     ON CONFLICT (CURRENCY_RK, DATA_ACTUAL_DATE)
     DO UPDATE SET
@@ -348,14 +340,14 @@ def load_md_exchange_rate_d():
             log_etl_process(connection, process_name, start_time, datetime.now(), "Failed", 0, str(e))
             raise
 
+
 #-----------------------
 
 def load_md_ledger_account_s():
-    file_path = f"{PATH}/md_ledger_account_s.csv"
-    postgres_hook = PostgresHook("postgres-db")
+    postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
 
-    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1/md_ledger_account_s.csv", delimiter=";", encoding="utf-8")
     
     df['START_DATE'] = pd.to_datetime(df['START_DATE'], format='%Y-%m-%d').dt.date
     df['END_DATE'] = pd.to_datetime(df['END_DATE'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -367,9 +359,8 @@ def load_md_ledger_account_s():
         print("Ошибка: датафрейм пустой для MD_LEDGER_ACCOUNT_S. Нет данных для загрузки.")
         return
 
-
     upsert_query = """
-    INSERT INTO "DS".MD_LEDGER_ACCOUNT_S (CHAPTER, CHAPTER_NAME, SECTION_NUMBER, SECTION_NAME, SUBSECTION_NAME,
+    INSERT INTO DS.MD_LEDGER_ACCOUNT_S (CHAPTER, CHAPTER_NAME, SECTION_NUMBER, SECTION_NAME, SUBSECTION_NAME,
     LEDGER1_ACCOUNT, LEDGER1_ACCOUNT_NAME, LEDGER_ACCOUNT, LEDGER_ACCOUNT_NAME, CHARACTERISTIC, IS_RESIDENT,
     IS_RESERVE, IS_RESERVED, IS_LOAN, IS_RESERVED_ASSETS, IS_OVERDUE, IS_INTEREST, PAIR_ACCOUNT, START_DATE,
     END_DATE, IS_RUB_ONLY, MIN_TERM, MIN_TERM_MEASURE, MAX_TERM, MAX_TERM_MEASURE, LEDGER_ACC_FULL_NAME_TRANSLIT,
@@ -471,7 +462,8 @@ def load_md_ledger_account_s():
 default_args = {
     "owner": "egor",
     "start_date": datetime(2024, 12, 23),
-    "retries": 1
+    "retries": 1,
+    "retry_delay": timedelta(seconds=7)
 }
 
 with DAG(
@@ -479,8 +471,7 @@ with DAG(
     default_args=default_args,
     description="ETL Data Pipeline",
     catchup=False,
-    template_searchpath = [PATH],
-    #schedule_interval="0 0 * * *"
+    schedule_interval=None
 ) as dag:
 
     start = DummyOperator(
