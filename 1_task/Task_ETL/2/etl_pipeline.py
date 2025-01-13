@@ -3,10 +3,16 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.operators.python_operator import PythonOperator
 from sqlalchemy.sql import text
+from airflow.configuration import conf
+from airflow.models import Variable
 
 from datetime import datetime
 import pandas as pd
 import time
+
+PATH = Variable.get("my_path")
+
+conf.set("core", "template_searchpath", PATH)
 
 
 def log_etl_process(connection, process_name, start_time, end_time, status, rows_processed, error_message=None):
@@ -24,9 +30,10 @@ def log_etl_process(connection, process_name, start_time, end_time, status, rows
     })
 
 def load_ft_balance_f():
+    file_path = f"{PATH}/ft_balance_f.csv"
     postgres_hook = PostgresHook("postgres-db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv("/files/ft_balance_f.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
 
     
     df['ON_DATE'] = pd.to_datetime(df['ON_DATE'], format='%d.%m.%Y').dt.date
@@ -84,9 +91,10 @@ def load_ft_balance_f():
 
 
 def load_ft_posting_f():
+    file_path = f"{PATH}/ft_posting_f.csv"
     postgres_hook = PostgresHook("postgres-db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv("/files/ft_posting_f.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
     
     df['OPER_DATE'] = pd.to_datetime(df['OPER_DATE'], format='%d-%m-%Y').dt.date
     df = df.where(pd.notnull(df), None)
@@ -142,9 +150,10 @@ def load_ft_posting_f():
 #-----------------------
 
 def load_md_account_d():
+    file_path = f"{PATH}/md_account_d.csv"
     postgres_hook = PostgresHook("postgres-db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv("/files/md_account_d.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
 
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
     df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d').dt.date
@@ -207,13 +216,14 @@ def load_md_account_d():
 
 
 def load_md_currency_d():
+    file_path = f"{PATH}/md_currency_d.csv"
     postgres_hook = PostgresHook("postgres-db")
     engine = postgres_hook.get_sqlalchemy_engine()
     df = pd.read_csv(
-        "/files/md_currency_d.csv",
+        file_path,
         delimiter=";",
-        encoding="windows-1252",
-        dtype={"CURRENCY_CODE": str}  # сохранение ведущих нулей
+        encoding="utf-8",
+        dtype={"CURRENCY_CODE": str}
     )
 
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
@@ -275,10 +285,11 @@ def load_md_currency_d():
 
 
 def load_md_exchange_rate_d():
+    file_path = f"{PATH}/md_exchange_rate_d.csv"
     postgres_hook = PostgresHook("postgres-db")
     engine = postgres_hook.get_sqlalchemy_engine()
     
-    df = pd.read_csv("/files/md_exchange_rate_d.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
     
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
     df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -337,21 +348,14 @@ def load_md_exchange_rate_d():
             log_etl_process(connection, process_name, start_time, datetime.now(), "Failed", 0, str(e))
             raise
 
-
-
 #-----------------------
 
-
-from sqlalchemy import text
-from datetime import datetime
-import pandas as pd
-from airflow.providers.postgres.hooks.postgres import PostgresHook
-
 def load_md_ledger_account_s():
+    file_path = f"{PATH}/md_ledger_account_s.csv"
     postgres_hook = PostgresHook("postgres-db")
     engine = postgres_hook.get_sqlalchemy_engine()
 
-    df = pd.read_csv("/files/md_ledger_account_s.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(file_path, delimiter=";", encoding="utf-8")
     
     df['START_DATE'] = pd.to_datetime(df['START_DATE'], format='%Y-%m-%d').dt.date
     df['END_DATE'] = pd.to_datetime(df['END_DATE'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -475,7 +479,8 @@ with DAG(
     default_args=default_args,
     description="ETL Data Pipeline",
     catchup=False,
-    schedule_interval="0 0 * * *"
+    template_searchpath = [PATH],
+    #schedule_interval="0 0 * * *"
 ) as dag:
 
     start = DummyOperator(

@@ -1,11 +1,12 @@
- import pandas as pd
- from sqlalchemy import create_engine, text
- from datetime import datetime
- import time
+import pandas as pd
+from sqlalchemy import create_engine, text
+from datetime import datetime
+import time
 
+BASE_PATH = r"C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv"
 
  # Функция для логирования
- def log_etl_process(connection, process_name, start_time, end_time, status, rows_processed, error_message=None):
+def log_etl_process(connection, process_name, start_time, end_time, status, rows_processed, error_message=None):
      insert_log_query = """
      INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, START_TIME, END_TIME, STATUS, ROWS_PROCESSED, ERROR_MESSAGE)
      VALUES (:process_name, :start_time, :end_time, :status, :rows_processed, :error_message);
@@ -22,7 +23,7 @@
 
 
  # Функция для загрузки FT_BALANCE_F
- def load_ft_balance_f(connection, df):
+def load_ft_balance_f(connection, df):
      try:
          df['ON_DATE'] = pd.to_datetime(df['ON_DATE'], format='%d.%m.%Y').dt.date
          print("Данные успешно преобразованы для FT_BALANCE_F.")
@@ -99,7 +100,7 @@
 
 
  # Функция для загрузки FT_POSTING_F
- def load_ft_posting_f(connection, df):
+def load_ft_posting_f(connection, df):
      try:
          df['OPER_DATE'] = pd.to_datetime(df['OPER_DATE'], format='%d-%m-%Y').dt.date
          print("Данные успешно преобразованы для FT_POSTING_F.")
@@ -165,7 +166,7 @@
 
 
 
- def load_md_account_d(connection, df):
+def load_md_account_d(connection, df):
      try:
          df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
          df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d').dt.date
@@ -245,7 +246,7 @@
          print(f"Ошибка при обработке данных для MD_ACCOUNT_D: {e}")
 
 
- def load_md_currency_d(connection, df):
+def load_md_currency_d(connection, df):
      try:
          df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
          df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d').dt.date
@@ -335,7 +336,7 @@
 
 
 
- def load_md_exchange_rate_d(connection, df):
+def load_md_exchange_rate_d(connection, df):
      try:
          df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
          df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d',
@@ -430,7 +431,7 @@
 
 
 
- def load_md_ledger_account_s(connection, df):
+def load_md_ledger_account_s(connection, df):
      try:
          df['START_DATE'] = pd.to_datetime(df['START_DATE'], format='%Y-%m-%d').dt.date
          df['END_DATE'] = pd.to_datetime(df['END_DATE'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -589,10 +590,10 @@
          print(f"Ошибка при обработке данных для MD_LEDGER_ACCOUNT_S: {e}")
 
 
- def menu():
+def menu():
      host = "localhost"
      port = "5432"
-     dbname = "Project_task"
+     dbname = "postgres"
      user = "postgres"
 
      engine = create_engine(f'postgresql+psycopg2://{user}@{host}:{port}/{dbname}')
@@ -613,18 +614,14 @@
 
              if choice == '1':
                  print("Запуск всех потоков...")
-                 df_ft_balance_f = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\ft_balance_f.csv',
-                                               delimiter=';')
-                 df_ft_posting_f = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\ft_posting_f.csv',
-                                               delimiter=';')
-                 df_md_account_d = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_account_d.csv',
-                                               delimiter=';')
-                 df_md_currency_d = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_currency_d.csv',
-                                               delimiter=';', encoding='windows-1252')
-                 df_md_exchange_rate_d = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_exchange_rate_d.csv',
-                                               delimiter=';', encoding='windows-1252')
-                 df_md_ledger_account_s = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_ledger_account_s.csv',
-                                               delimiter=';')
+                 df_ft_balance_f = pd.read_csv(f"{BASE_PATH}/ft_balance_f.csv", delimiter=";")
+                 df_ft_posting_f = pd.read_csv(f"{BASE_PATH}/ft_posting_f.csv", delimiter=";")
+                 df_md_account_d = pd.read_csv(f"{BASE_PATH}/md_account_d.csv", delimiter=";")
+                 df_md_currency_d = pd.read_csv(f"{BASE_PATH}/md_currency_d.csv", delimiter=";",
+                                                encoding="windows-1252")
+                 df_md_exchange_rate_d = pd.read_csv(f"{BASE_PATH}/md_exchange_rate_d.csv", delimiter=";",
+                                                     encoding="windows-1252")
+                 df_md_ledger_account_s = pd.read_csv(f"{BASE_PATH}/md_ledger_account_s.csv", delimiter=";")
 
                  load_ft_balance_f(connection, df_ft_balance_f)
                  load_ft_posting_f(connection, df_ft_posting_f)
@@ -635,40 +632,36 @@
 
              elif choice == '2':
                  print("Запуск FT_BALANCE_F потока...")
-                 df_ft_balance_f = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\ft_balance_f.csv',
-                                               delimiter=';')
+                 df_ft_balance_f = pd.read_csv(f"{BASE_PATH}/ft_balance_f.csv", delimiter=";")
                  load_ft_balance_f(connection, df_ft_balance_f)
 
              elif choice == '3':
                  print("Запуск FT_POSTING_F потока...")
-                 df_ft_posting_f = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\ft_posting_f.csv',
-                                               delimiter=';')
+                 df_ft_posting_f = pd.read_csv(f"{BASE_PATH}/ft_posting_f.csv", delimiter=";")
                  load_ft_posting_f(connection, df_ft_posting_f)
 
              elif choice == '4':
 
                  print("Запуск MD_ACCOUNT_D потока...")
-                 df_md_account_d = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_account_d.csv',
-                                               delimiter=';')
+                 df_md_account_d = pd.read_csv(f"{BASE_PATH}/md_account_d.csv", delimiter=";")
                  load_md_account_d(connection, df_md_account_d)
 
              elif choice == '5':
 
                  print("Запуск MD_CURRENCY_D потока...")
-                 df_md_currency_d = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_currency_d.csv',
-                                               delimiter=';', encoding='windows-1252')
+                 df_md_currency_d = pd.read_csv(f"{BASE_PATH}/md_currency_d.csv", delimiter=";",
+                                                encoding="windows-1252")
                  load_md_currency_d(connection, df_md_currency_d)
 
              elif choice == '6':
                  print("Запуск MD_EXCHANGE_RATE_D потока...")
-                 df_md_exchange_rate_d = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_exchange_rate_d.csv',
-                                               delimiter=';', encoding='windows-1252')
+                 df_md_exchange_rate_d = pd.read_csv(f"{BASE_PATH}/md_exchange_rate_d.csv", delimiter=";",
+                                                encoding="windows-1252")
                  load_md_exchange_rate_d(connection, df_md_exchange_rate_d)
 
              elif choice == '7':
                  print("Запуск MD_LEDGER_ACCOUNT_S потока...")
-                 df_md_ledger_account_s = pd.read_csv(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_ledger_account_s.csv',
-                                               delimiter=';')
+                 df_md_ledger_account_s = pd.read_csv(f"{BASE_PATH}/md_ledger_account_s.csv", delimiter=";")
                  load_md_ledger_account_s(connection, df_md_ledger_account_s)
 
              elif choice == '8':
@@ -678,12 +671,6 @@
              else:
                  print("Неверный ввод, попробуйте снова.")
 
-
 if __name__ == "__main__":
     menu()
 
-import chardet
-
-with open(r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv\md_currency_d.csv', 'rb') as file:
-    result = chardet.detect(file.read())
-    print(result)

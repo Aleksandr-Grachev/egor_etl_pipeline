@@ -15,7 +15,7 @@ PATH = Variable.get("my_path")
 conf.set("core", "template_searchpath", PATH)
 
 def insert_data(table_name):
-    file_path = PATH + f"{table_name}.csv"
+    file_path = f"{PATH}{table_name}.csv"
     
     with open(file_path, 'rb') as file:
         raw_data = file.read()
