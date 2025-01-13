@@ -222,7 +222,7 @@ def load_md_currency_d():
     df = pd.read_csv(
         file_path,
         delimiter=";",
-        encoding="utf-8",
+        encoding="windows-1252",
         dtype={"CURRENCY_CODE": str}
     )
 
