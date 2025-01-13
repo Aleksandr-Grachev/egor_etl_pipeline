@@ -6,6 +6,7 @@ DECLARE
 	v_start_time_log timestamp;
     v_end_time_log timestamp;
 	v_duration_log interval;
+	v_rows_processed integer;
 
     start_date DATE := i_OnDate - INTERVAL '1 month';
     end_date DATE := i_OnDate - INTERVAL '1 day';
@@ -15,8 +16,8 @@ BEGIN
 	PERFORM pg_sleep(5);
 	
     -- Логи
-    INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS, DURATION)
-    VALUES ('fill_f101_round_f', CURRENT_DATE, v_start_time_log, NULL, 'Start', NULL);
+    INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS, ROWS_PROCESSED, DURATION)
+    VALUES ('fill_f101_round_f', CURRENT_DATE, v_start_time_log, NULL, 'Start', NULL, NULL);
 	
     -- Удаляем старые данные
     DELETE FROM "DM".dm_f101_round_f
@@ -148,8 +149,13 @@ BEGIN
         AND bd.ledger_account = td.ledger_account 
         AND bd.characteristic = td.characteristic;
 
+
+	GET DIAGNOSTICS v_rows_processed = ROW_COUNT;
+	v_end_time_log := clock_timestamp();
+    v_duration_log := v_end_time_log - v_start_time_log;
+	
 	UPDATE "LOGS".ETL_LOG 
-    SET END_TIME = v_end_time_log, duration = v_duration_log, STATUS = 'Success'
+    SET END_TIME = v_end_time_log, duration = v_duration_log, STATUS = 'Success',  ROWS_PROCESSED = v_rows_processed
     WHERE PROCESS_NAME = 'fill_f101_round_f' AND LOG_DATE = CURRENT_DATE AND STATUS = 'Start';
 	
 END;
@@ -158,5 +164,3 @@ $BODY$;
 
 --Вызов
 CALL "DM".fill_f101_round_f('2018-02-01');
-
-SELECT * FROM "DM".dm_f101_round_f;

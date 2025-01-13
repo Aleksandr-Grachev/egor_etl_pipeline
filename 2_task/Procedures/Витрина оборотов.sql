@@ -7,12 +7,13 @@ DECLARE
     v_start_time timestamp;
     v_end_time timestamp;
 	v_duration interval;
+	v_rows_processed integer;
 BEGIN
     v_start_time := clock_timestamp();
 	--PERFORM pg_sleep(5);
     -- Логи
-    INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS, DURATION)
-    VALUES ('fill_account_turnover-' || i_ondate::text , CURRENT_DATE, v_start_time, NULL, 'START', NULL);
+    INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS,rows_processed, DURATION)
+    VALUES ('fill_account_turnover-' || i_ondate::text , CURRENT_DATE, v_start_time, NULL, 'START', NULL, NULL);
 
     DELETE FROM "DM".DM_ACCOUNT_TURNOVER_F WHERE on_date = i_OnDate;
 
@@ -54,11 +55,12 @@ BEGIN
     ) subquery
     GROUP BY account_rk;
 
+	GET DIAGNOSTICS v_rows_processed = ROW_COUNT;
 	v_end_time := clock_timestamp();
 	v_duration := v_end_time - v_start_time;
 
     UPDATE "LOGS".ETL_LOG 
-    SET END_TIME = v_end_time, duration = v_duration, STATUS = 'Success'
+    SET END_TIME = v_end_time, duration = v_duration, STATUS = 'Success', ROWS_PROCESSED = v_rows_processed
     WHERE PROCESS_NAME = 'fill_account_turnover-' || i_ondate::text AND LOG_DATE = CURRENT_DATE AND STATUS = 'START';
 
 END;
@@ -79,7 +81,3 @@ BEGIN
     END LOOP;
 END;
 $$;
-
-SELECT * FROM "DM".dm_account_turnover_f
-
-DELETE FROM "DM".dm_account_turnover_f

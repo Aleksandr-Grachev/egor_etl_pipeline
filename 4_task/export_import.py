@@ -2,7 +2,7 @@ import psycopg2
 import csv
 from datetime import datetime
 
-# Настройки подключения к базе данных
+# подключение к БД
 conn = psycopg2.connect(
     dbname="postgres",
     user="postgres",
@@ -10,37 +10,35 @@ conn = psycopg2.connect(
     host="localhost",
     port="5432"
 )
-
 cursor = conn.cursor()
 
-def log_start(v_start_time_log, process_name):
+def log_start(v_start_time_log, process_name, rows_processed=None):
     cursor.execute("""
-        INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS, DURATION)
-        VALUES (%s, CURRENT_DATE, %s, NULL, 'Start', NULL);
-    """, (process_name, v_start_time_log))
+        INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS, ROWS_PROCESSED, DURATION)
+        VALUES (%s, CURRENT_DATE, %s, NULL, 'Start', %s , NULL);
+    """, (process_name, v_start_time_log, rows_processed))
 
-# Функция логирования окончания процесса
-def log_end(v_end_time_log, v_duration_log, process_name):
+def log_end(v_end_time_log, v_duration_log, process_name, rows_processed):
     cursor.execute("""
         UPDATE "LOGS".ETL_LOG 
-        SET END_TIME = %s, DURATION = %s, STATUS = 'Success'
+        SET END_TIME = %s, DURATION = %s, STATUS = 'Success', ROWS_PROCESSED = %s
         WHERE PROCESS_NAME = %s 
           AND LOG_DATE = CURRENT_DATE 
           AND STATUS = 'Start';
-    """, (v_end_time_log, v_duration_log, process_name))
+    """, (v_end_time_log, v_duration_log, rows_processed, process_name))
 
 def export_to_csv():
 
     cursor.execute('SELECT * FROM "DM".dm_f101_round_f')
-    columns = [desc[0] for desc in cursor.description] # названия колонок из 1 строки
     rows = cursor.fetchall() # все строки данных
+    columns = [desc[0] for desc in cursor.description] # названия колонок из 1 строки
 
     file_path = r'C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\Project_Task\4\101.csv'
 
     process_name = "export_f101"
     v_start_time_log = datetime.now()
 
-    log_start(v_start_time_log, process_name)
+    log_start(v_start_time_log, process_name, rows_processed=len(rows))
     # Запись в csv
     with open(file_path, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
@@ -50,7 +48,7 @@ def export_to_csv():
     v_end_time_log = datetime.now()
     v_duration_log = v_end_time_log - v_start_time_log
 
-    log_end(v_end_time_log, v_duration_log, process_name)
+    log_end(v_end_time_log, v_duration_log, process_name, rows_processed=len(rows))
 
     conn.commit()
     print(f"Данные успешно выгружены в CSV файл: {file_path}")
@@ -66,9 +64,11 @@ def import_from_csv():
 
     log_start(v_start_time_log, process_name)
 
+    rows_processed = 0
+
     with open(file_path, mode='r', encoding='utf-8') as file:
         reader = csv.reader(file)
-        headers = next(reader)  # пропуск заголовка
+        headers = next(reader)  # Пропускаем заголовок
 
         for row in reader:
             processed_row = [
@@ -76,7 +76,6 @@ def import_from_csv():
                 for value in row
             ]
 
-           
             cursor.execute("""
                 INSERT INTO "DM".dm_f101_round_f_v2 (
                     from_date, to_date, chapter, ledger_account, characteristic,
@@ -98,17 +97,15 @@ def import_from_csv():
                 )
             """, processed_row)
 
+            rows_processed += 1
+
     v_end_time_log = datetime.now()
     v_duration_log = v_end_time_log - v_start_time_log
 
-    log_end(v_end_time_log, v_duration_log, process_name)
+    log_end(v_end_time_log, v_duration_log, process_name, rows_processed)
 
     conn.commit()
     print(f"Данные успешно загружены в таблицу из файла: {file_path}")
-
-
-
-
 
 
 def main():
