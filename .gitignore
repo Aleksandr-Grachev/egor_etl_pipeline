@@ -1,0 +1,18 @@
+# VSCode
+**metals*
+**bloop*
+**vscode*
+
+*.log
+
+# app-vol
+app-vol/pgadmin/**/*
+app-vol/postgresql/**/*
+app-vol/redis/**/*
+
+# root .env file
+.env
+
+# project docs for now
+docs
+
