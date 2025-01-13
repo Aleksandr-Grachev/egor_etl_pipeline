@@ -1,0 +1,8 @@
+\c taskdb
+
+GRANT ALL PRIVILEGES ON SCHEMA DS TO testus, bn_airflow;
+GRANT ALL PRIVILEGES ON all TABLES in SCHEMA DS TO testus, bn_airflow;
+GRANT ALL PRIVILEGES ON all SEQUENCES in SCHEMA DS TO testus, bn_airflow;
+GRANT ALL PRIVILEGES ON all FUNCTIONS in SCHEMA DS TO testus, bn_airflow;
+GRANT ALL PRIVILEGES ON all PROCEDURES in SCHEMA DS TO testus, bn_airflow;
+GRANT ALL PRIVILEGES ON all ROUTINES in SCHEMA DS TO testus, bn_airflow;
