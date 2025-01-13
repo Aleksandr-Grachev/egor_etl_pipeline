@@ -8,7 +8,7 @@ BEGIN
    	v_start_time := clock_timestamp();
 	PERFORM pg_sleep(5);
     INSERT INTO "LOGS".etl_log (process_name, start_time, status)
-    VALUES ('Insert md_account_d', v_start_time, 'STARTED');
+    VALUES ('Insert md_account_d', v_start_time, 'Start');
 
 	UPDATE "DS".md_account_d t
 	SET 
@@ -72,17 +72,17 @@ BEGIN
                           WHERE mad."ACCOUNT_RK" IS NOT NULL
                             AND mad."DATA_ACTUAL_DATE" IS NOT NULL)
     	WHERE process_name = 'Insert md_account_d'
-      	AND status = 'STARTED';
+      	AND status = 'Start';
 
 EXCEPTION WHEN OTHERS THEN
     v_end_time := clock_timestamp();
 	v_duration := v_end_time - v_start_time;
     UPDATE "LOGS".etl_log
     SET end_time = v_end_time,
-        status = 'FAILED',
+        status = 'Failed',
         error_message = SQLERRM,
 		duration = v_duration
     WHERE process_name = 'Insert md_account_d'
-      AND status = 'STARTED';
+      AND status = 'Start';
     RAISE;
 END $$;
