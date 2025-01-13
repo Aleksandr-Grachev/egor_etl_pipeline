@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS "DS".ft_balance_f(
 
 CREATE TABLE IF NOT EXISTS "DS".ft_posting_f(
 	oper_date         DATE NOT NULL,
-    credit_account_rk INT8 NOT NULL,
-    debet_account_rk  INT8 NOT NULL,
+    credit_account_rk NUMERIC NOT NULL,
+    debet_account_rk  NUMERIC NOT NULL,
     credit_amount     NUMERIC(19,2),
     debet_amount      NUMERIC(19,2)
 );
