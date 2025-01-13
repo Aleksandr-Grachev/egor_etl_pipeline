@@ -56,7 +56,7 @@ services:
       - app-network
     volumes:
       - .:/workspace:cached
-      - ./app-vol/pgadmin:/var/lib/pgadmin
+      - ./app-vol/pgadmin/data:/var/lib/pgadmin
       - ./app-vol/pgadmin/servers.json:/pgadmin4/servers.json
 
   db:
