@@ -8,7 +8,7 @@ BEGIN
     v_start_time := clock_timestamp();
 	PERFORM pg_sleep(5);
     INSERT INTO "LOGS".etl_log (process_name, start_time, status)
-    VALUES ('Insert ft_balance_f', v_start_time, 'STARTED');
+    VALUES ('Insert ft_balance_f', v_start_time, 'Start');
 
     UPDATE "DS".ft_balance_f f
     SET currency_rk = fbf."CURRENCY_RK",
@@ -50,8 +50,7 @@ BEGIN
                           FROM stage.ft_balance_f fbf
                           WHERE fbf."ACCOUNT_RK" IS NOT NULL
                             AND fbf."ON_DATE" IS NOT NULL)
-    WHERE process_name = 'Insert ft_balance_f'
-      AND status = 'STARTED';
+    WHERE process_name = 'Insert ft_balance_f' AND status = 'Start';
 
 EXCEPTION WHEN OTHERS THEN
     v_end_time := clock_timestamp();
@@ -59,9 +58,9 @@ EXCEPTION WHEN OTHERS THEN
     UPDATE "LOGS".etl_log
     SET end_time = v_end_time,
 		duration = v_duration,
-        status = 'FAILED',
+        status = 'Failed',
         error_message = SQLERRM
     WHERE process_name = 'Insert ft_balance_f'
-      AND status = 'STARTED';
+      AND status = 'Start';
     RAISE;
 END $$;
