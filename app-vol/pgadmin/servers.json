@@ -1,0 +1,22 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "db-root",
+            "Group": "Local docker servers",
+            "Port": 5432,
+            "Username": "postgres",
+            "Host": "db",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "postgres"
+        },
+        "2": {
+            "Name": "db-user",
+            "Group": "Local docker servers",
+            "Port": 5432,
+            "Username": "testus",
+            "Host": "db",
+            "SSLMode": "prefer",
+            "MaintenanceDB": "taskdb"
+        }
+    }
+}

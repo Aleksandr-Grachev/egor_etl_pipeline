@@ -1,0 +1,103 @@
+networks:
+  app-network:
+    name: appNet
+
+x-airflow-common: &airflow-common
+  image: bitnami/airflow:2.10.4
+  networks:
+    - app-network
+  depends_on:
+    - db
+    - redis
+  volumes:
+    - ./app-vol/csv:/data/csv
+    - ./src/sql:/data/sql
+    - ./src/dags:/opt/bitnami/airflow/dags
+
+x-airflow-env: &airflow-env
+  AIRFLOW_FERNET_KEY: 46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+  AIRFLOW_SECRET_KEY: a25mQ1FHTUh3MnFRSk5KMEIyVVU2YmN0VGRyYTVXY08=
+  AIRFLOW_EXECUTOR: CeleryExecutor
+  AIRFLOW_DATABASE_HOST: db
+  AIRFLOW_DATABASE_NAME: airflowdb
+  AIRFLOW_LOAD_EXAMPLES: no
+  AIRFLOW_CONN_POSTGRES_DB: 'postgresql://testus@db:5432/taskdb'
+  #see https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html
+  AIRFLOW_VAR_MY_PATH: /data
+
+services:
+
+  app:
+    image: custom/postgresql-client-16
+    depends_on:
+      - db
+      - redis
+    build:
+      context: .
+      args:
+        - USER_GID=$USER_GID
+        - USER_UID=$USER_UID
+        - USERNAME=$USER
+    command: sleep infinity
+    networks:
+      - app-network
+    volumes:
+      - .:/workspace:cached # Mount the root folder that contains .git
+      - ./app-vol/initdb/sql:/sql
+
+  pg-admin:
+    image: dpage/pgadmin4:8.14
+    environment:
+      PGADMIN_DEFAULT_EMAIL: $USER@example.com
+      PGADMIN_DEFAULT_PASSWORD: 123
+    ports:
+      - '8081:80'
+    networks:
+      - app-network
+    volumes:
+      - .:/workspace:cached
+      - ./app-vol/pgadmin/data:/var/lib/pgadmin
+      - ./app-vol/pgadmin/servers.json:/pgadmin4/servers.json
+
+  db:
+    image: bitnami/postgresql:16
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '5432:5432'
+    networks:
+      - app-network
+    volumes:
+      - ./app-vol/postgresql:/bitnami/postgresql
+      - ./app-vol/initdb:/docker-entrypoint-initdb.d
+
+  redis:
+    image: bitnami/redis:7.4.2
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - app-network
+    volumes:
+      - ./app-vol/redis:/bitnami/redis
+
+  airflow-worker:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-env
+      AIRFLOW_COMPONENT_TYPE: worker
+
+  airflow-scheduler:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-env
+      AIRFLOW_COMPONENT_TYPE: scheduler
+
+  airflow:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-env
+      AIRFLOW_PASSWORD: 123
+      AIRFLOW_USERNAME: $USER
+      AIRFLOW_EMAIL: $USER@example.com
+    ports:
+      - '8080:8080'

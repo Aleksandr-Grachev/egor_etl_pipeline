@@ -1,0 +1,20 @@
+{
+  "name": "custom/custom-airflow-first",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      // Add the IDs of extensions you want installed when the container is created.
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "cweijan.vscode-postgresql-client2",
+        "cweijan.dbclient-jdbc",
+        "inferrinizzard.prettier-sql-vscode",
+        "ms-python.python",
+        "mechatroner.rainbow-csv"
+      ]
+    }
+  }
+}
