@@ -120,7 +120,7 @@ with DAG(
     sql_md_account_d = SQLExecuteQueryOperator(
         task_id="sql_md_account_d",
         conn_id="postgres_db",
-        sql = "sql/md_account_d.sql"
+        sql = "sql/task1/md_account_d.sql"
     )
 
     sql_md_currency_d = SQLExecuteQueryOperator(
