@@ -107,7 +107,7 @@ with DAG(
     sql_ft_balance_f = SQLExecuteQueryOperator(
         task_id="sql_ft_balance_f",
         conn_id="postgres_db",
-        sql = "sql/task1/t_balance_f.sql"
+        sql = "sql/task1/ft_balance_f.sql"
     )
 
     sql_ft_posting_f = SQLExecuteQueryOperator(
