@@ -7,19 +7,19 @@ BEGIN
 
     v_start_time := clock_timestamp();
 	PERFORM pg_sleep(5);
-    INSERT INTO "LOGS".etl_log (process_name, start_time, status)
+    INSERT INTO logs.etl_log (process_name, start_time, status)
     VALUES ('Insert ft_balance_f', v_start_time, 'Start');
 
-    UPDATE "DS".ft_balance_f f
+    UPDATE ds.ft_balance_f f
     SET currency_rk = fbf."CURRENCY_RK",
         balance_out = fbf."BALANCE_OUT"
     FROM stage.ft_balance_f fbf
-    WHERE f."on_date" = to_date(fbf."ON_DATE", 'dd.mm.YYYY')
-      AND f."account_rk" = fbf."ACCOUNT_RK"
+    WHERE f.on_date = to_date(fbf."ON_DATE", 'dd.mm.YYYY')
+      AND f.account_rk = fbf."ACCOUNT_RK"
 	  AND fbf."ACCOUNT_RK" IS NOT NULL
       AND fbf."ON_DATE" IS NOT NULL;
 
-    INSERT INTO "DS".ft_balance_f (on_date, account_rk, currency_rk, balance_out)
+    INSERT INTO ds.ft_balance_f (on_date, account_rk, currency_rk, balance_out)
     SELECT to_date(fbf."ON_DATE", 'dd.mm.YYYY') AS on_date,
            fbf."ACCOUNT_RK",
            fbf."CURRENCY_RK",
@@ -34,15 +34,15 @@ BEGIN
         WHERE "ACCOUNT_RK" IS NOT NULL
           AND "ON_DATE" IS NOT NULL
     ) fbf
-    LEFT JOIN "DS".ft_balance_f f
-        ON f."on_date" = to_date(fbf."ON_DATE", 'dd.mm.YYYY')
-        AND f."account_rk" = fbf."ACCOUNT_RK"
-    WHERE f."account_rk" IS NULL;
+    LEFT JOIN ds.ft_balance_f f
+        ON f.on_date = to_date(fbf."ON_DATE", 'dd.mm.YYYY')
+        AND f.account_rk = fbf."ACCOUNT_RK"
+    WHERE f.account_rk IS NULL;
 
     v_end_time := clock_timestamp();
 	v_duration := v_end_time - v_start_time;
 	
-    UPDATE "LOGS".etl_log
+    UPDATE logs.etl_log
     SET end_time = v_end_time,
 		duration = v_duration,
         status = 'COMPLETED',
@@ -55,7 +55,7 @@ BEGIN
 EXCEPTION WHEN OTHERS THEN
     v_end_time := clock_timestamp();
 	v_duration := v_end_time - v_start_time;
-    UPDATE "LOGS".etl_log
+    UPDATE logs.etl_log
     SET end_time = v_end_time,
 		duration = v_duration,
         status = 'Failed',
