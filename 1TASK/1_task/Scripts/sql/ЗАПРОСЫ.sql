@@ -1,18 +1,14 @@
-SELECT * FROM stage.FT_BALANCE_F;
+SELECT * FROM ds.ft_balance_f;
 
-SELECT * FROM stage.MD_CURRENCY_D;
+SELECT * FROM ds.ft_posting_f;
 
-SELECT * FROM "DS".FT_BALANCE_F;
+SELECT * FROM ds.md_account_d;
 
-SELECT * FROM "DS".FT_POSTING_F;
+SELECT * FROM ds.md_currency_d;
 
-SELECT * FROM "DS".MD_ACCOUNT_D;
+SELECT * FROM ds.md_exchange_rate_d;
 
-SELECT * FROM "DS".MD_CURRENCY_D;
+SELECT * FROM ds.md_ledger_account_s;
 
-SELECT * FROM "DS".MD_EXCHANGE_RATE_D;
-
-SELECT * FROM "DS".MD_LEDGER_ACCOUNT_S;
-
-SELECT * FROM "LOGS".etl_log
+SELECT * FROM logs.etl_log
 ORDER BY log_date DESC, start_time DESC;

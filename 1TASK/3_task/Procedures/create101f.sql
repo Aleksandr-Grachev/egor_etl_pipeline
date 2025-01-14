@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "DM".dm_f101_round_f
+CREATE TABLE IF NOT EXISTS dm.dm_f101_round_f
 (
     from_date date,
     to_date date,

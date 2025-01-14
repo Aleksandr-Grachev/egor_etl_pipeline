@@ -1,23 +1,23 @@
-CREATE SCHEMA IF NOT EXISTS "DS";
+CREATE SCHEMA IF NOT EXISTS ds;
 
-CREATE TABLE IF NOT EXISTS "DS".ft_balance_f(
+CREATE TABLE IF NOT EXISTS ds.ft_balance_f(
 	on_date       DATE NOT NULL,
-    account_rk    INT8 NOT NULL,
-    currency_rk   INT8,
-    balance_out   NUMERIC(19,2),
+    account_rk    NUMERIC NOT NULL,
+    currency_rk   NUMERIC,
+    balance_out   FLOAT,
 	CONSTRAINT BALANCE_PKEY PRIMARY KEY (ON_DATE, ACCOUNT_RK)
 );
 
-CREATE TABLE IF NOT EXISTS "DS".ft_posting_f(
+CREATE TABLE IF NOT EXISTS ds.ft_posting_f(
 	oper_date         DATE NOT NULL,
     credit_account_rk NUMERIC NOT NULL,
     debet_account_rk  NUMERIC NOT NULL,
-    credit_amount     NUMERIC(19,2),
-    debet_amount      NUMERIC(19,2)
+    credit_amount     FLOAT,
+    debet_amount      FLOAT
 );
 
 
-CREATE TABLE IF NOT EXISTS "DS".md_account_d (
+CREATE TABLE IF NOT EXISTS ds.md_account_d (
 	DATA_ACTUAL_DATE DATE NOT NULL,
 	DATA_ACTUAL_END_DATE DATE NOT NULL,
 	ACCOUNT_RK NUMERIC NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS "DS".md_account_d (
 	CONSTRAINT ACCOUNT_PKEY PRIMARY KEY (DATA_ACTUAL_DATE, ACCOUNT_RK)
 );
 
-CREATE TABLE IF NOT EXISTS "DS".md_currency_d (
+CREATE TABLE IF NOT EXISTS ds.md_currency_d (
 	CURRENCY_RK NUMERIC NOT NULL,
 	DATA_ACTUAL_DATE DATE NOT NULL,
 	DATA_ACTUAL_END_DATE DATE,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS "DS".md_currency_d (
 
 );
 
-CREATE TABLE IF NOT EXISTS "DS".md_exchange_rate_d (
+CREATE TABLE IF NOT EXISTS ds.md_exchange_rate_d (
 	DATA_ACTUAL_DATE DATE NOT NULL,
 	DATA_ACTUAL_END_DATE DATE,
 	CURRENCY_RK NUMERIC NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS "DS".md_exchange_rate_d (
 
 );
 
-CREATE TABLE IF NOT EXISTS "DS".md_ledger_account_s (
+CREATE TABLE IF NOT EXISTS ds.md_ledger_account_s (
 	CHAPTER CHARACTER(1),
 	CHAPTER_NAME VARCHAR(16),
 	SECTION_NUMBER INTEGER,

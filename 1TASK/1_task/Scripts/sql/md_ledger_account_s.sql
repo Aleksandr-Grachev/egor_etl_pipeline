@@ -7,10 +7,10 @@ BEGIN
 
     v_start_time := clock_timestamp();
 	PERFORM pg_sleep(5);
-    INSERT INTO "LOGS".etl_log (process_name, start_time, status)
+    INSERT INTO logs.etl_log (process_name, start_time, status)
     VALUES ('Insert md_ledger_account_s', v_start_time, 'Start');
 
-    UPDATE "DS".md_ledger_account_s t
+    UPDATE ds.md_ledger_account_s t
     SET 
         chapter = fbf."CHAPTER",
         chapter_name = fbf."CHAPTER_NAME",
@@ -23,12 +23,12 @@ BEGIN
         characteristic = fbf."CHARACTERISTIC",
         end_date = to_date(fbf."END_DATE", 'YYYY.mm.dd')
     FROM stage.md_ledger_account_s fbf
-    WHERE t."ledger_account" = fbf."LEDGER_ACCOUNT"
-      AND t."start_date" = to_date(fbf."START_DATE", 'YYYY.mm.dd')
+    WHERE t.ledger_account = fbf."LEDGER_ACCOUNT"
+      AND t.start_date = to_date(fbf."START_DATE", 'YYYY.mm.dd')
        AND fbf."LEDGER_ACCOUNT" IS NOT NULL
        AND fbf."START_DATE" IS NOT NULL;
 
-    INSERT INTO "DS".md_ledger_account_s (chapter, chapter_name, section_number, section_name, subsection_name, ledger1_account, ledger1_account_name, ledger_account, ledger_account_name, characteristic, start_date, end_date)
+    INSERT INTO ds.md_ledger_account_s (chapter, chapter_name, section_number, section_name, subsection_name, ledger1_account, ledger1_account_name, ledger_account, ledger_account_name, characteristic, start_date, end_date)
     SELECT 
         fbf."CHAPTER",
         fbf."CHAPTER_NAME",
@@ -60,15 +60,15 @@ BEGIN
         WHERE "LEDGER_ACCOUNT" IS NOT NULL
           AND "START_DATE" IS NOT NULL
     ) fbf
-    LEFT JOIN "DS".md_ledger_account_s t
-        ON t."ledger_account" = fbf."LEDGER_ACCOUNT"
-        AND t."start_date" = to_date(fbf."START_DATE", 'YYYY.mm.dd')
-    WHERE t."ledger_account" IS NULL;
+    LEFT JOIN ds.md_ledger_account_s t
+        ON t.ledger_account = fbf."LEDGER_ACCOUNT"
+        AND t.start_date = to_date(fbf."START_DATE", 'YYYY.mm.dd')
+    WHERE t.ledger_account IS NULL;
 
     v_end_time := clock_timestamp();
     v_duration := v_end_time - v_start_time;
 
-    UPDATE "LOGS".etl_log
+    UPDATE logs.etl_log
     SET end_time = v_end_time,
     	duration = v_duration,
         status = 'COMPLETED',
@@ -82,7 +82,7 @@ BEGIN
 EXCEPTION WHEN OTHERS THEN
     v_end_time := clock_timestamp();
 	v_duration := v_end_time - v_start_time;
-    UPDATE "LOGS".etl_log
+    UPDATE logs.etl_log
     SET end_time = v_end_time,
 		duration = v_duration,
         status = 'Failed',

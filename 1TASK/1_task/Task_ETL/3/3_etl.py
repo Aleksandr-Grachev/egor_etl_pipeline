@@ -8,7 +8,7 @@ BASE_PATH = r"C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv"
  # Функция для логирования
 def log_etl_process(connection, process_name, start_time, end_time, status, rows_processed, error_message=None):
      insert_log_query = """
-     INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, START_TIME, END_TIME, STATUS, ROWS_PROCESSED, ERROR_MESSAGE)
+     INSERT INTO logs.ETL_LOG (PROCESS_NAME, START_TIME, END_TIME, STATUS, ROWS_PROCESSED, ERROR_MESSAGE)
      VALUES (:process_name, :start_time, :end_time, :status, :rows_processed, :error_message);
      """
      connection.execute(text(insert_log_query), {
@@ -33,7 +33,7 @@ def load_ft_balance_f(connection, df):
 
 
      update_query = """
-     UPDATE "DS".FT_BALANCE_F
+     UPDATE ds.FT_BALANCE_F
      SET BALANCE_OUT = :balance_out,
          CURRENCY_RK = :currency_rk
      WHERE ON_DATE = :on_date AND ACCOUNT_RK = :account_rk;
@@ -41,7 +41,7 @@ def load_ft_balance_f(connection, df):
 
 
      insert_query = """
-     INSERT INTO "DS".FT_BALANCE_F (ON_DATE, ACCOUNT_RK, CURRENCY_RK, BALANCE_OUT)
+     INSERT INTO ds.FT_BALANCE_F (ON_DATE, ACCOUNT_RK, CURRENCY_RK, BALANCE_OUT)
      VALUES (:on_date, :account_rk, :currency_rk, :balance_out);
      """
 
@@ -71,7 +71,7 @@ def load_ft_balance_f(connection, df):
                      'balance_out': balance_out
                  }
                  select_query = """
-                                 SELECT 1 FROM "DS".FT_BALANCE_F
+                                 SELECT 1 FROM ds.FT_BALANCE_F
                                  WHERE ACCOUNT_RK = :account_rk AND ON_DATE = :on_date;
                                  """
 
@@ -109,11 +109,11 @@ def load_ft_posting_f(connection, df):
          return
 
      clear_query = """
-     TRUNCATE TABLE "DS".FT_POSTING_F;
+     TRUNCATE TABLE ds.FT_POSTING_F;
      """
 
      insert_query = """
-     INSERT INTO "DS".FT_POSTING_F (OPER_DATE, CREDIT_ACCOUNT_RK, DEBET_ACCOUNT_RK, CREDIT_AMOUNT, DEBET_AMOUNT)
+     INSERT INTO ds.FT_POSTING_F (OPER_DATE, CREDIT_ACCOUNT_RK, DEBET_ACCOUNT_RK, CREDIT_AMOUNT, DEBET_AMOUNT)
      VALUES (:oper_date, :credit_account_rk, :debet_account_rk, :credit_amount, :debet_amount);
      """
 
@@ -176,7 +176,7 @@ def load_md_account_d(connection, df):
          return
 
      update_query = """
-     UPDATE "DS".MD_ACCOUNT_D
+     UPDATE ds.MD_ACCOUNT_D
      SET DATA_ACTUAL_END_DATE = :data_actual_end_date,
          ACCOUNT_NUMBER = :account_number,
          CHAR_TYPE = :char_type,
@@ -186,7 +186,7 @@ def load_md_account_d(connection, df):
      """
 
      insert_query = """
-     INSERT INTO "DS".MD_ACCOUNT_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, ACCOUNT_RK, ACCOUNT_NUMBER, CHAR_TYPE, CURRENCY_RK, CURRENCY_CODE)
+     INSERT INTO ds.MD_ACCOUNT_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, ACCOUNT_RK, ACCOUNT_NUMBER, CHAR_TYPE, CURRENCY_RK, CURRENCY_CODE)
      VALUES (:data_actual_date, :data_actual_end_date, :account_rk, :account_number, :char_type, :currency_rk, :currency_code);
      """
 
@@ -220,7 +220,7 @@ def load_md_account_d(connection, df):
                  }
 
                  select_query = """
-                 SELECT 1 FROM "DS".MD_ACCOUNT_D
+                 SELECT 1 FROM ds.MD_ACCOUNT_D
                  WHERE DATA_ACTUAL_DATE = :data_actual_date AND ACCOUNT_RK = :account_rk;
                  """
                  result = connection.execute(text(select_query), data).fetchone()
@@ -256,7 +256,7 @@ def load_md_currency_d(connection, df):
          return
 
      update_query = """
-     UPDATE "DS".MD_CURRENCY_D
+     UPDATE ds.MD_CURRENCY_D
      SET DATA_ACTUAL_END_DATE = :data_actual_end_date,
          CURRENCY_CODE = :currency_code,
          CODE_ISO_CHAR = :code_iso_char
@@ -264,7 +264,7 @@ def load_md_currency_d(connection, df):
      """
 
      insert_query = """
-     INSERT INTO "DS".MD_CURRENCY_D (CURRENCY_RK, DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_CODE, CODE_ISO_CHAR)
+     INSERT INTO ds.MD_CURRENCY_D (CURRENCY_RK, DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_CODE, CODE_ISO_CHAR)
      VALUES (:currency_rk, :data_actual_date, :data_actual_end_date, :currency_code, :code_iso_char);
      """
 
@@ -309,7 +309,7 @@ def load_md_currency_d(connection, df):
 
 
                  select_query = """
-                 SELECT 1 FROM "DS".MD_CURRENCY_D
+                 SELECT 1 FROM ds.MD_CURRENCY_D
                  WHERE CURRENCY_RK = :currency_rk AND DATA_ACTUAL_DATE = :data_actual_date;
                  """
                  result = connection.execute(text(select_query), data).fetchone()
@@ -348,7 +348,7 @@ def load_md_exchange_rate_d(connection, df):
 
 
      update_query = """
-     UPDATE "DS".MD_EXCHANGE_RATE_D
+     UPDATE ds.MD_EXCHANGE_RATE_D
      SET DATA_ACTUAL_END_DATE = :data_actual_end_date,
          REDUCED_COURCE = :reduced_cource,
          CODE_ISO_NUM = :code_iso_num
@@ -356,7 +356,7 @@ def load_md_exchange_rate_d(connection, df):
      """
 
      insert_query = """
-     INSERT INTO "DS".MD_EXCHANGE_RATE_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_RK, REDUCED_COURCE, CODE_ISO_NUM)
+     INSERT INTO ds.MD_EXCHANGE_RATE_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_RK, REDUCED_COURCE, CODE_ISO_NUM)
      VALUES (:data_actual_date, :data_actual_end_date, :currency_rk, :reduced_cource, :code_iso_num);
      """
 
@@ -402,7 +402,7 @@ def load_md_exchange_rate_d(connection, df):
 
 
                  select_query = """
-                 SELECT 1 FROM "DS".MD_EXCHANGE_RATE_D
+                 SELECT 1 FROM ds.MD_EXCHANGE_RATE_D
                  WHERE CURRENCY_RK = :currency_rk AND DATA_ACTUAL_DATE = :data_actual_date;
                  """
                  result = connection.execute(text(select_query), data).fetchone()
@@ -441,7 +441,7 @@ def load_md_ledger_account_s(connection, df):
          return
 
      update_query = """
-     UPDATE "DS".MD_LEDGER_ACCOUNT_S
+     UPDATE ds.MD_LEDGER_ACCOUNT_S
      SET CHAPTER = :chapter,
          CHAPTER_NAME = :chapter_name,
          SECTION_NUMBER = :section_number,
@@ -473,7 +473,7 @@ def load_md_ledger_account_s(connection, df):
      """
 
      insert_query = """
-     INSERT INTO "DS".MD_LEDGER_ACCOUNT_S (CHAPTER, CHAPTER_NAME, SECTION_NUMBER, SECTION_NAME, SUBSECTION_NAME,
+     INSERT INTO ds.MD_LEDGER_ACCOUNT_S (CHAPTER, CHAPTER_NAME, SECTION_NUMBER, SECTION_NAME, SUBSECTION_NAME,
      LEDGER1_ACCOUNT, LEDGER1_ACCOUNT_NAME, LEDGER_ACCOUNT, LEDGER_ACCOUNT_NAME, CHARACTERISTIC, IS_RESIDENT,
      IS_RESERVE, IS_RESERVED, IS_LOAN, IS_RESERVED_ASSETS, IS_OVERDUE, IS_INTEREST, PAIR_ACCOUNT, START_DATE,
      END_DATE, IS_RUB_ONLY, MIN_TERM, MIN_TERM_MEASURE, MAX_TERM, MAX_TERM_MEASURE, LEDGER_ACC_FULL_NAME_TRANSLIT,
@@ -564,7 +564,7 @@ def load_md_ledger_account_s(connection, df):
 
 
                  select_query = """
-                    SELECT 1 FROM "DS".MD_LEDGER_ACCOUNT_S
+                    SELECT 1 FROM ds.MD_LEDGER_ACCOUNT_S
                     WHERE LEDGER_ACCOUNT = :ledger_account AND START_DATE = :start_date;
                     """
                  result = connection.execute(text(select_query), data).fetchone()

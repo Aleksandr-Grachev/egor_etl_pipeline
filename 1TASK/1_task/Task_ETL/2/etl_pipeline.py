@@ -17,7 +17,7 @@ conf.set("core", "template_searchpath", PATH)
 
 def log_etl_process(connection, process_name, start_time, end_time, status, rows_processed, error_message=None):
     insert_log_query = """
-    INSERT INTO "LOGS".ETL_LOG (process_name, start_time, end_time, status, rows_processed, ERROR_MESSAGE)
+    INSERT INTO logs.ETL_LOG (process_name, start_time, end_time, status, rows_processed, ERROR_MESSAGE)
     VALUES (:process_name, :start_time, :end_time, :status, :rows_processed, :error_message);
     """
     connection.execute(text(insert_log_query), {
@@ -42,7 +42,7 @@ def load_ft_balance_f():
     df = df.dropna(subset=['ON_DATE', 'ACCOUNT_RK'])
 
     upsert_query = """
-    INSERT INTO "DS".FT_BALANCE_F (ON_DATE, ACCOUNT_RK, CURRENCY_RK, BALANCE_OUT)
+    INSERT INTO ds.FT_BALANCE_F (ON_DATE, ACCOUNT_RK, CURRENCY_RK, BALANCE_OUT)
     VALUES (:on_date, :account_rk, :currency_rk, :balance_out)
     ON CONFLICT (ON_DATE, ACCOUNT_RK) 
     DO UPDATE SET 
@@ -99,10 +99,10 @@ def load_ft_posting_f():
     df['OPER_DATE'] = pd.to_datetime(df['OPER_DATE'], format='%d-%m-%Y').dt.date
     df = df.where(pd.notnull(df), None)
 
-    clear_query = 'TRUNCATE TABLE "DS".FT_POSTING_F;'
+    clear_query = 'TRUNCATE TABLE ds.FT_POSTING_F;'
 
     insert_query = """
-    INSERT INTO "DS".FT_POSTING_F (OPER_DATE, CREDIT_ACCOUNT_RK, DEBET_ACCOUNT_RK, CREDIT_AMOUNT, DEBET_AMOUNT)
+    INSERT INTO ds.FT_POSTING_F (OPER_DATE, CREDIT_ACCOUNT_RK, DEBET_ACCOUNT_RK, CREDIT_AMOUNT, DEBET_AMOUNT)
     VALUES (:oper_date, :credit_account_rk, :debet_account_rk, :credit_amount, :debet_amount);
     """
 
@@ -162,7 +162,7 @@ def load_md_account_d():
     df = df.dropna(subset=['ACCOUNT_RK', 'DATA_ACTUAL_DATE'])  
 
     upsert_query = """
-    INSERT INTO "DS".MD_ACCOUNT_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, ACCOUNT_RK, ACCOUNT_NUMBER, CHAR_TYPE, CURRENCY_RK, CURRENCY_CODE)
+    INSERT INTO ds.MD_ACCOUNT_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, ACCOUNT_RK, ACCOUNT_NUMBER, CHAR_TYPE, CURRENCY_RK, CURRENCY_CODE)
     VALUES (:data_actual_date, :data_actual_end_date, :account_rk, :account_number, :char_type, :currency_rk, :currency_code)
     ON CONFLICT (DATA_ACTUAL_DATE, ACCOUNT_RK) 
     DO UPDATE SET 
@@ -234,7 +234,7 @@ def load_md_currency_d():
     df = df.dropna(subset=['CURRENCY_RK', 'DATA_ACTUAL_DATE'])  
 
     upsert_query = """
-    INSERT INTO "DS".MD_CURRENCY_D (CURRENCY_RK, DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_CODE, CODE_ISO_CHAR)
+    INSERT INTO ds.MD_CURRENCY_D (CURRENCY_RK, DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_CODE, CODE_ISO_CHAR)
     VALUES (:currency_rk, :data_actual_date, :data_actual_end_date, :currency_code, :code_iso_char)
     ON CONFLICT (CURRENCY_RK, DATA_ACTUAL_DATE)
     DO UPDATE SET
@@ -303,7 +303,7 @@ def load_md_exchange_rate_d():
         return
 
     upsert_query = """
-    INSERT INTO "DS".MD_EXCHANGE_RATE_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_RK, REDUCED_COURCE, CODE_ISO_NUM)
+    INSERT INTO ds.MD_EXCHANGE_RATE_D (DATA_ACTUAL_DATE, DATA_ACTUAL_END_DATE, CURRENCY_RK, REDUCED_COURCE, CODE_ISO_NUM)
     VALUES (:data_actual_date, :data_actual_end_date, :currency_rk, :reduced_cource, :code_iso_num)
     ON CONFLICT (CURRENCY_RK, DATA_ACTUAL_DATE)
     DO UPDATE SET
@@ -369,7 +369,7 @@ def load_md_ledger_account_s():
 
 
     upsert_query = """
-    INSERT INTO "DS".MD_LEDGER_ACCOUNT_S (CHAPTER, CHAPTER_NAME, SECTION_NUMBER, SECTION_NAME, SUBSECTION_NAME,
+    INSERT INTO ds.MD_LEDGER_ACCOUNT_S (CHAPTER, CHAPTER_NAME, SECTION_NUMBER, SECTION_NAME, SUBSECTION_NAME,
     LEDGER1_ACCOUNT, LEDGER1_ACCOUNT_NAME, LEDGER_ACCOUNT, LEDGER_ACCOUNT_NAME, CHARACTERISTIC, IS_RESIDENT,
     IS_RESERVE, IS_RESERVED, IS_LOAN, IS_RESERVED_ASSETS, IS_OVERDUE, IS_INTEREST, PAIR_ACCOUNT, START_DATE,
     END_DATE, IS_RUB_ONLY, MIN_TERM, MIN_TERM_MEASURE, MAX_TERM, MAX_TERM_MEASURE, LEDGER_ACC_FULL_NAME_TRANSLIT,

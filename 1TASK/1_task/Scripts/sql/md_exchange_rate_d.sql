@@ -7,21 +7,21 @@ BEGIN
 
     v_start_time := clock_timestamp();
 	PERFORM pg_sleep(5);
-    INSERT INTO "LOGS".etl_log (process_name, start_time, status)
+    INSERT INTO logs.etl_log (process_name, start_time, status)
     VALUES ('Insert md_exchange_rate_d', v_start_time, 'Start');
 
-    UPDATE "DS".md_exchange_rate_d t
+    UPDATE ds.md_exchange_rate_d t
     SET 
         data_actual_end_date = to_date(fbf."DATA_ACTUAL_END_DATE", 'YYYY.mm.dd'),
         reduced_cource = fbf."REDUCED_COURCE",
         code_iso_num = fbf."CODE_ISO_NUM"
     FROM stage.md_exchange_rate_d fbf
-    WHERE t."currency_rk" = fbf."CURRENCY_RK"
-      AND t."data_actual_date" = to_date(fbf."DATA_ACTUAL_DATE", 'YYYY.mm.dd')
+    WHERE t.currency_rk = fbf."CURRENCY_RK"
+      AND t.data_actual_date = to_date(fbf."DATA_ACTUAL_DATE", 'YYYY.mm.dd')
       AND fbf."CURRENCY_RK" IS NOT NULL
       AND fbf."DATA_ACTUAL_DATE" IS NOT NULL;
 
-    INSERT INTO "DS".md_exchange_rate_d (data_actual_date, data_actual_end_date, currency_rk, reduced_cource, code_iso_num)
+    INSERT INTO ds.md_exchange_rate_d (data_actual_date, data_actual_end_date, currency_rk, reduced_cource, code_iso_num)
     SELECT 
         to_date(fbf."DATA_ACTUAL_DATE", 'YYYY.mm.dd') as data_actual_date,
         to_date(fbf."DATA_ACTUAL_END_DATE", 'YYYY.mm.dd') as data_actual_end_date,
@@ -39,15 +39,15 @@ BEGIN
         WHERE "CURRENCY_RK" IS NOT NULL
           AND "DATA_ACTUAL_DATE" IS NOT NULL
     ) fbf
-    LEFT JOIN "DS".md_exchange_rate_d t
-        ON t."currency_rk" = fbf."CURRENCY_RK"
-        AND t."data_actual_date" = to_date(fbf."DATA_ACTUAL_DATE", 'YYYY.mm.dd')
-    WHERE t."currency_rk" IS NULL;
+    LEFT JOIN ds.md_exchange_rate_d t
+        ON t.currency_rk = fbf."CURRENCY_RK"
+        AND t.data_actual_date = to_date(fbf."DATA_ACTUAL_DATE", 'YYYY.mm.dd')
+    WHERE t.currency_rk IS NULL;
 
     v_end_time := clock_timestamp();
     v_duration := v_end_time - v_start_time;
 
-    UPDATE "LOGS".etl_log
+    UPDATE logs.etl_log
     SET end_time = v_end_time,
     	duration = v_duration,
         status = 'COMPLETED',
@@ -61,7 +61,7 @@ BEGIN
 EXCEPTION WHEN OTHERS THEN
     v_end_time := clock_timestamp();
 	v_duration := v_end_time - v_start_time;
-    UPDATE "LOGS".etl_log
+    UPDATE logs.etl_log
     SET end_time = v_end_time,
 		duration = v_duration,
         status = 'Failed',

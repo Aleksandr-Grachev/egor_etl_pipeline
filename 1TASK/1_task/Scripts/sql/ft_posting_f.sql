@@ -8,10 +8,10 @@ BEGIN
     v_start_time := clock_timestamp();
 	PERFORM pg_sleep(5);
 	
-    INSERT INTO "LOGS".etl_log (process_name, start_time, status)
+    INSERT INTO logs.etl_log (process_name, start_time, status)
     VALUES ('Insert ft_posting_f', v_start_time, 'Start');
 
-    INSERT INTO "DS".ft_posting_f(
+    INSERT INTO ds.ft_posting_f(
         oper_date,
         credit_account_rk,
         debet_account_rk,
@@ -34,16 +34,16 @@ BEGIN
         WHERE "CREDIT_ACCOUNT_RK" IS NOT NULL
         AND "DEBET_ACCOUNT_RK" IS NOT NULL
     ) fpf
-    LEFT JOIN "DS".ft_posting_f f
-        ON f."oper_date" = to_date(fpf."OPER_DATE", 'dd.mm.YYYY')
-        AND f."credit_account_rk" = fpf."CREDIT_ACCOUNT_RK"
-        AND f."debet_account_rk" = fpf."DEBET_ACCOUNT_RK"
-    WHERE f."credit_account_rk" IS NULL;
+    LEFT JOIN ds.ft_posting_f f
+        ON f.oper_date = to_date(fpf."OPER_DATE", 'dd.mm.YYYY')
+        AND f.credit_account_rk = fpf."CREDIT_ACCOUNT_RK"
+        AND f.debet_account_rk = fpf."DEBET_ACCOUNT_RK"
+    WHERE f.credit_account_rk IS NULL;
     
         v_end_time := clock_timestamp();
     	v_duration := v_end_time - v_start_time; 
     
-        UPDATE "LOGS".etl_log
+        UPDATE logs.etl_log
         SET end_time = v_end_time,
     		duration = v_duration,
             status = 'Success',
@@ -55,7 +55,7 @@ BEGIN
 EXCEPTION WHEN OTHERS THEN
     v_end_time := clock_timestamp();
 	v_duration := v_end_time - v_start_time; 
-    UPDATE "LOGS".etl_log
+    UPDATE logs.etl_log
     SET end_time = v_end_time,
         status = 'Failed',
         error_message = SQLERRM,
