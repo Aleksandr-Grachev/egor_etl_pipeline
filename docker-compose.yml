@@ -11,8 +11,8 @@ x-airflow-common: &airflow-common
     - redis
   volumes:
     - ./app-vol/csv:/data/csv
-    - ./src/sql:/data/sql
-    - ./src/dags:/opt/bitnami/airflow/dags
+    - ./1TASK/1_task/Scripts/sql:/data/sql/task1
+    - ./1TASK/1_task/Task_ETL:/opt/bitnami/airflow/dags/task1
 
 x-airflow-env: &airflow-env
   AIRFLOW_FERNET_KEY: 46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
@@ -43,7 +43,6 @@ services:
       - app-network
     volumes:
       - .:/workspace:cached # Mount the root folder that contains .git
-      - ./app-vol/initdb/sql:/sql
 
   pg-admin:
     image: dpage/pgadmin4:8.14
