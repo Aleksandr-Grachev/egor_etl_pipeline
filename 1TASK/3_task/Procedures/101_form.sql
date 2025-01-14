@@ -1,4 +1,4 @@
-CREATE OR REPLACE PROCEDURE "DM".fill_f101_round_f(
+CREATE OR REPLACE PROCEDURE dm.fill_f101_round_f(
     i_ondate date)
 LANGUAGE 'plpgsql'
 AS $BODY$
@@ -16,11 +16,11 @@ BEGIN
 	PERFORM pg_sleep(5);
 	
     -- Логи
-    INSERT INTO "LOGS".ETL_LOG (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS, ROWS_PROCESSED, DURATION)
+    INSERT INTO logs.etl_log (PROCESS_NAME, LOG_DATE, START_TIME, END_TIME, STATUS, ROWS_PROCESSED, DURATION)
     VALUES ('fill_f101_round_f', CURRENT_DATE, v_start_time_log, NULL, 'Start', NULL, NULL);
 	
     -- Удаляем старые данные
-    DELETE FROM "DM".dm_f101_round_f
+    DELETE FROM dm.dm_f101_round_f
     WHERE from_date = start_date AND to_date = end_date;
 
     --Нахождение данных для вставки
@@ -32,8 +32,8 @@ BEGIN
             a.char_type AS characteristic,
             la.chapter,
             la.ledger_account
-        FROM "DS".md_account_d a
-        JOIN "DS".md_ledger_account_s la
+        FROM ds.md_account_d a
+        JOIN ds.md_ledger_account_s la
             ON LEFT(a.account_number, 5) = la.ledger_account::varchar
     ),
     balance_data AS (
@@ -71,7 +71,7 @@ BEGIN
                     THEN ab.balance_out_rub 
                     ELSE 0 
                 END) AS balance_out_total
-        FROM "DM".dm_account_balance_f ab
+        FROM dm.dm_account_balance_f ab
         JOIN account_data ad
             ON ab.account_rk = ad.account_rk
         GROUP BY ad.chapter, ad.ledger_account, ad.characteristic
@@ -111,14 +111,14 @@ BEGIN
                     THEN ac.credit_amount_rub 
                     ELSE 0 
                 END) AS turn_cre_total
-        FROM "DM".dm_account_turnover_f ac
+        FROM dm.dm_account_turnover_f ac
         LEFT JOIN account_data ad
             ON ac.account_rk = ad.account_rk
         GROUP BY ad.chapter, ad.ledger_account, ad.characteristic
     )
 
     -- Вставка
-    INSERT INTO "DM".dm_f101_round_f(
+    INSERT INTO dm.dm_f101_round_f(
         from_date, to_date, chapter, ledger_account, characteristic, 
         balance_in_rub, balance_in_val, balance_in_total, 
         turn_deb_rub, turn_deb_val, turn_deb_total, 
@@ -154,7 +154,7 @@ BEGIN
 	v_end_time_log := clock_timestamp();
     v_duration_log := v_end_time_log - v_start_time_log;
 	
-	UPDATE "LOGS".ETL_LOG 
+	UPDATE logs.etl_log
     SET END_TIME = v_end_time_log, duration = v_duration_log, STATUS = 'Success',  ROWS_PROCESSED = v_rows_processed
     WHERE PROCESS_NAME = 'fill_f101_round_f' AND LOG_DATE = CURRENT_DATE AND STATUS = 'Start';
 	
@@ -163,4 +163,4 @@ $BODY$;
 
 
 --Вызов
-CALL "DM".fill_f101_round_f('2018-02-01');
+CALL dm.fill_f101_round_f('2018-02-01');
