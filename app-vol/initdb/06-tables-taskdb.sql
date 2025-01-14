@@ -1,4 +1,3 @@
-<<<<<<<< HEAD:app-vol/initdb/06-tables-taskdb.sql
 \c taskdb
 
 CREATE TABLE IF NOT EXISTS LOGS.ETL_LOG (
@@ -9,15 +8,11 @@ CREATE TABLE IF NOT EXISTS LOGS.ETL_LOG (
 	STATUS VARCHAR(20) NOT NULL,
 	ROWS_PROCESSED INTEGER DEFAULT 0,
 	ERROR_MESSAGE TEXT,
-	duration TIMESTAMP
+	duration INTERVAL
 );
 
-CREATE TABLE IF NOT EXISTS DS.ft_balance_f(
-========
-CREATE SCHEMA IF NOT EXISTS ds;
 
 CREATE TABLE IF NOT EXISTS ds.ft_balance_f(
->>>>>>>> main:1TASK/1_task/Scripts/sql/sql_create_table.sql
 	on_date       DATE NOT NULL,
     account_rk    NUMERIC NOT NULL,
     currency_rk   NUMERIC,
@@ -25,11 +20,7 @@ CREATE TABLE IF NOT EXISTS ds.ft_balance_f(
 	CONSTRAINT BALANCE_PKEY PRIMARY KEY (ON_DATE, ACCOUNT_RK)
 );
 
-<<<<<<<< HEAD:app-vol/initdb/06-tables-taskdb.sql
-CREATE TABLE IF NOT EXISTS DS.ft_posting_f(
-========
 CREATE TABLE IF NOT EXISTS ds.ft_posting_f(
->>>>>>>> main:1TASK/1_task/Scripts/sql/sql_create_table.sql
 	oper_date         DATE NOT NULL,
     credit_account_rk NUMERIC NOT NULL,
     debet_account_rk  NUMERIC NOT NULL,
@@ -37,12 +28,8 @@ CREATE TABLE IF NOT EXISTS ds.ft_posting_f(
     debet_amount      FLOAT
 );
 
-<<<<<<<< HEAD:app-vol/initdb/06-tables-taskdb.sql
-CREATE TABLE IF NOT EXISTS DS.md_account_d (
-========
 
 CREATE TABLE IF NOT EXISTS ds.md_account_d (
->>>>>>>> main:1TASK/1_task/Scripts/sql/sql_create_table.sql
 	DATA_ACTUAL_DATE DATE NOT NULL,
 	DATA_ACTUAL_END_DATE DATE NOT NULL,
 	ACCOUNT_RK NUMERIC NOT NULL,
@@ -53,11 +40,7 @@ CREATE TABLE IF NOT EXISTS ds.md_account_d (
 	CONSTRAINT ACCOUNT_PKEY PRIMARY KEY (DATA_ACTUAL_DATE, ACCOUNT_RK)
 );
 
-<<<<<<<< HEAD:app-vol/initdb/06-tables-taskdb.sql
-CREATE TABLE IF NOT EXISTS DS.md_currency_d (
-========
 CREATE TABLE IF NOT EXISTS ds.md_currency_d (
->>>>>>>> main:1TASK/1_task/Scripts/sql/sql_create_table.sql
 	CURRENCY_RK NUMERIC NOT NULL,
 	DATA_ACTUAL_DATE DATE NOT NULL,
 	DATA_ACTUAL_END_DATE DATE,
@@ -66,11 +49,7 @@ CREATE TABLE IF NOT EXISTS ds.md_currency_d (
 	CONSTRAINT CURRENCY_PKEY PRIMARY KEY (CURRENCY_RK, DATA_ACTUAL_DATE)
 );
 
-<<<<<<<< HEAD:app-vol/initdb/06-tables-taskdb.sql
-CREATE TABLE IF NOT EXISTS DS.md_exchange_rate_d (
-========
 CREATE TABLE IF NOT EXISTS ds.md_exchange_rate_d (
->>>>>>>> main:1TASK/1_task/Scripts/sql/sql_create_table.sql
 	DATA_ACTUAL_DATE DATE NOT NULL,
 	DATA_ACTUAL_END_DATE DATE,
 	CURRENCY_RK NUMERIC NOT NULL,
@@ -79,11 +58,7 @@ CREATE TABLE IF NOT EXISTS ds.md_exchange_rate_d (
 	CONSTRAINT EXCHANGE_RATE_PKEY PRIMARY KEY (DATA_ACTUAL_DATE, CURRENCY_RK)
 );
 
-<<<<<<<< HEAD:app-vol/initdb/06-tables-taskdb.sql
-CREATE TABLE IF NOT EXISTS DS.md_ledger_account_s (
-========
 CREATE TABLE IF NOT EXISTS ds.md_ledger_account_s (
->>>>>>>> main:1TASK/1_task/Scripts/sql/sql_create_table.sql
 	CHAPTER CHARACTER(1),
 	CHAPTER_NAME VARCHAR(16),
 	SECTION_NUMBER INTEGER,
