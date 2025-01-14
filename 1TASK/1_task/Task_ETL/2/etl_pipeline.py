@@ -463,7 +463,8 @@ default_args = {
     "owner": "egor",
     "start_date": datetime(2024, 12, 23),
     "retries": 1,
-    "retry_delay": timedelta(seconds=7)
+    "retry_delay": timedelta(seconds=7),
+    "schedule_interval":None
 }
 
 with DAG(
