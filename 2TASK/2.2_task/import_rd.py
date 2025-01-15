@@ -1,22 +1,24 @@
 import psycopg2
 import csv
+import os
+import pathlib
 from datetime import datetime
 
-BASE_PATH = r"C:\Users\bokla\ETL_pipeline\2TASK\2.2_task\sources"
+BASE_CSV_PATH = os.getenv('ETL_PATH')
 
 # подключение к БД
 conn = psycopg2.connect(
-    dbname="dwh",
-    user="postgres",
-    password="2002",
-    host="localhost",
-    port="5432"
+    dbname = os.getenv("DB_NAME_DWH"),
+    user = os.getenv("DB_USER"),
+    password = os.getenv("DB_PASSWORD"),
+    host = os.getenv("DB_HOST"),
+    port = os.getenv("DB_PORT")
 )
 cursor = conn.cursor()
 
 
 def import_product():
-    file_path = f"{BASE_PATH}/product_info.csv"
+    file_path = f"{BASE_CSV_PATH}/2TASK/2.2_task/sources/product_info.csv"
 
     with open(file_path, mode='r', encoding='windows-1251') as file:
         reader = csv.reader(file)
@@ -38,7 +40,7 @@ def import_product():
     conn.commit()
 
 def import_deal_info():
-    file_path = f"{BASE_PATH}/deal_info.csv"
+    file_path = f"{BASE_CSV_PATH}/2TASK/2.2_task/sources/deal_info.csv"
 
     with open(file_path, mode='r', encoding='windows-1251') as file:
         reader = csv.reader(file)

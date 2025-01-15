@@ -1,9 +1,11 @@
 import pandas as pd
 from sqlalchemy import create_engine, text
 from datetime import datetime
+import os
 import time
 
-BASE_PATH = r"C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\csv"
+BASE_CSV_PATH = os.getenv('ETL_PATH')
+
 
  # Функция для логирования
 def log_etl_process(connection, process_name, start_time, end_time, status, rows_processed, error_message=None):
@@ -591,85 +593,88 @@ def load_md_ledger_account_s(connection, df):
 
 
 def menu():
-     host = "localhost"
-     port = "5432"
-     dbname = "postgres"
-     user = "postgres"
 
-     engine = create_engine(f'postgresql+psycopg2://{user}@{host}:{port}/{dbname}')
+    dbname = os.getenv("DB_NAME"),
+    user = os.getenv("DB_USER"),
+    password = os.getenv("DB_PASSWORD"),
+    host = os.getenv("DB_HOST"),
+    port = os.getenv("DB_PORT")
 
-     with engine.connect() as connection:
-         while True:
-             print("\nВыберите действие:")
-             print("1. Полная загрузка")
-             print("2. Загрузка только FT_BALANCE_F")
-             print("3. Загрузка только FT_POSTING_F")
-             print("4. Загрузка только MD_ACCOUNT_D")
-             print("5. Загрузка только MD_CURRENCY_D")
-             print("6. Загрузка только MD_EXCHANGE_RATE_D")
-             print("7. Загрузка только MD_LEDGER_ACCOUNT_S")
-             print("8. Выход")
 
-             choice = input("Введите номер действия: ")
+    engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}')
 
-             if choice == '1':
-                 print("Запуск всех потоков...")
-                 df_ft_balance_f = pd.read_csv(f"{BASE_PATH}/ft_balance_f.csv", delimiter=";")
-                 df_ft_posting_f = pd.read_csv(f"{BASE_PATH}/ft_posting_f.csv", delimiter=";")
-                 df_md_account_d = pd.read_csv(f"{BASE_PATH}/md_account_d.csv", delimiter=";")
-                 df_md_currency_d = pd.read_csv(f"{BASE_PATH}/md_currency_d.csv", delimiter=";",
-                                                encoding="windows-1252")
-                 df_md_exchange_rate_d = pd.read_csv(f"{BASE_PATH}/md_exchange_rate_d.csv", delimiter=";",
-                                                     encoding="windows-1252")
-                 df_md_ledger_account_s = pd.read_csv(f"{BASE_PATH}/md_ledger_account_s.csv", delimiter=";")
+    with engine.connect() as connection:
+        while True:
+            print("\nВыберите действие:")
+            print("1. Полная загрузка")
+            print("2. Загрузка только FT_BALANCE_F")
+            print("3. Загрузка только FT_POSTING_F")
+            print("4. Загрузка только MD_ACCOUNT_D")
+            print("5. Загрузка только MD_CURRENCY_D")
+            print("6. Загрузка только MD_EXCHANGE_RATE_D")
+            print("7. Загрузка только MD_LEDGER_ACCOUNT_S")
+            print("8. Выход")
 
-                 load_ft_balance_f(connection, df_ft_balance_f)
-                 load_ft_posting_f(connection, df_ft_posting_f)
-                 load_md_account_d(connection, df_md_account_d)
-                 load_md_currency_d(connection, df_md_currency_d)
-                 load_md_exchange_rate_d(connection, df_md_exchange_rate_d)
-                 load_md_ledger_account_s(connection, df_md_ledger_account_s)
+            choice = input("Введите номер действия: ")
 
-             elif choice == '2':
-                 print("Запуск FT_BALANCE_F потока...")
-                 df_ft_balance_f = pd.read_csv(f"{BASE_PATH}/ft_balance_f.csv", delimiter=";")
-                 load_ft_balance_f(connection, df_ft_balance_f)
+            if choice == '1':
+                print("Запуск всех потоков...")
+                df_ft_balance_f = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/ft_balance_f.csv", delimiter=";")
+                df_ft_posting_f = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/ft_posting_f.csv", delimiter=";")
+                df_md_account_d = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_account_d.csv", delimiter=";")
+                df_md_currency_d = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_currency_d.csv", delimiter=";",
+                                               encoding="windows-1252")
+                df_md_exchange_rate_d = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_exchange_rate_d.csv", delimiter=";",
+                                                    encoding="windows-1252")
+                df_md_ledger_account_s = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_ledger_account_s.csv", delimiter=";")
 
-             elif choice == '3':
-                 print("Запуск FT_POSTING_F потока...")
-                 df_ft_posting_f = pd.read_csv(f"{BASE_PATH}/ft_posting_f.csv", delimiter=";")
-                 load_ft_posting_f(connection, df_ft_posting_f)
+                load_ft_balance_f(connection, df_ft_balance_f)
+                load_ft_posting_f(connection, df_ft_posting_f)
+                load_md_account_d(connection, df_md_account_d)
+                load_md_currency_d(connection, df_md_currency_d)
+                load_md_exchange_rate_d(connection, df_md_exchange_rate_d)
+                load_md_ledger_account_s(connection, df_md_ledger_account_s)
 
-             elif choice == '4':
+            elif choice == '2':
+                print("Запуск FT_BALANCE_F потока...")
+                df_ft_balance_f = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/ft_balance_f.csv", delimiter=";")
+                load_ft_balance_f(connection, df_ft_balance_f)
 
-                 print("Запуск MD_ACCOUNT_D потока...")
-                 df_md_account_d = pd.read_csv(f"{BASE_PATH}/md_account_d.csv", delimiter=";")
-                 load_md_account_d(connection, df_md_account_d)
+            elif choice == '3':
+                print("Запуск FT_POSTING_F потока...")
+                df_ft_posting_f = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/ft_posting_f.csv", delimiter=";")
+                load_ft_posting_f(connection, df_ft_posting_f)
 
-             elif choice == '5':
+            elif choice == '4':
 
-                 print("Запуск MD_CURRENCY_D потока...")
-                 df_md_currency_d = pd.read_csv(f"{BASE_PATH}/md_currency_d.csv", delimiter=";",
-                                                encoding="windows-1252")
-                 load_md_currency_d(connection, df_md_currency_d)
+                print("Запуск MD_ACCOUNT_D потока...")
+                df_md_account_d = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_account_d.csv", delimiter=";")
+                load_md_account_d(connection, df_md_account_d)
 
-             elif choice == '6':
-                 print("Запуск MD_EXCHANGE_RATE_D потока...")
-                 df_md_exchange_rate_d = pd.read_csv(f"{BASE_PATH}/md_exchange_rate_d.csv", delimiter=";",
-                                                encoding="windows-1252")
-                 load_md_exchange_rate_d(connection, df_md_exchange_rate_d)
+            elif choice == '5':
 
-             elif choice == '7':
-                 print("Запуск MD_LEDGER_ACCOUNT_S потока...")
-                 df_md_ledger_account_s = pd.read_csv(f"{BASE_PATH}/md_ledger_account_s.csv", delimiter=";")
-                 load_md_ledger_account_s(connection, df_md_ledger_account_s)
+                print("Запуск MD_CURRENCY_D потока...")
+                df_md_currency_d = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_currency_d.csv", delimiter=";",
+                                               encoding="windows-1252")
+                load_md_currency_d(connection, df_md_currency_d)
 
-             elif choice == '8':
-                 print("Выход...")
-                 break
+            elif choice == '6':
+                print("Запуск MD_EXCHANGE_RATE_D потока...")
+                df_md_exchange_rate_d = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_exchange_rate_d.csv", delimiter=";",
+                                               encoding="windows-1252")
+                load_md_exchange_rate_d(connection, df_md_exchange_rate_d)
 
-             else:
-                 print("Неверный ввод, попробуйте снова.")
+            elif choice == '7':
+                print("Запуск MD_LEDGER_ACCOUNT_S потока...")
+                df_md_ledger_account_s = pd.read_csv(f"{BASE_CSV_PATH}/1TASK/1_task/scripts/md_ledger_account_s.csv", delimiter=";")
+                load_md_ledger_account_s(connection, df_md_ledger_account_s)
+
+            elif choice == '8':
+                print("Выход...")
+                break
+
+            else:
+                print("Неверный ввод, попробуйте снова.")
 
 if __name__ == "__main__":
     menu()

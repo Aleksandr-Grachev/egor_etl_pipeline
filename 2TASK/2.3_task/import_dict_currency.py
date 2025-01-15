@@ -1,22 +1,23 @@
 import psycopg2
 import csv
+import os
 from datetime import datetime
 
-BASE_PATH = r"C:\Users\bokla\ETL_pipeline\2TASK\2.3_task"
+BASE_CSV_PATH = os.getenv('ETL_PATH')
 
 # подключение к БД
 conn = psycopg2.connect(
-    dbname="dwh",
-    user="postgres",
-    password="2002",
-    host="localhost",
-    port="5432"
+    dbname = os.getenv("DB_NAME_DWH"),
+    user = os.getenv("DB_USER"),
+    password = os.getenv("DB_PASSWORD"),
+    host = os.getenv("DB_HOST"),
+    port = os.getenv("DB_PORT")
 )
 cursor = conn.cursor()
 
 
 def import_dict_curency():
-    file_path = f"{BASE_PATH}/dict_currency.csv"
+    file_path = f"{BASE_CSV_PATH}/2TASK/2.3_task/dict_currency.csv"
 
     with open(file_path, mode='r', encoding='utf-8') as file:
         reader = csv.reader(file)

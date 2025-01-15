@@ -10,4 +10,3 @@ LEFT JOIN ds.md_exchange_rate_d merd
     ON fbf.currency_rk = merd.currency_rk
    AND data_actual_date <= '2017-12-31'
    AND data_actual_end_date >= '2017-12-31'
-GROUP BY on_date, account_rk, reduced_cource

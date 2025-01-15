@@ -1,16 +1,18 @@
 import psycopg2
 import csv
+import os
 from datetime import datetime
 
-BASE_PATH = r"C:\Users\bokla\ETL_pipeline\1TASK\4_task"
+BASE_CSV_PATH = os.getenv('ETL_PATH')
+
 
 # подключение к БД
 conn = psycopg2.connect(
-    dbname="postgres",
-    user="postgres",
-    password="2002",
-    host="localhost",
-    port="5432"
+    dbname = os.getenv("DB_NAME"),
+    user = os.getenv("DB_USER"),
+    password = os.getenv("DB_PASSWORD"),
+    host = os.getenv("DB_HOST"),
+    port = os.getenv("DB_PORT")
 )
 cursor = conn.cursor()
 
@@ -35,7 +37,7 @@ def export_to_csv():
     rows = cursor.fetchall() # все строки данных
     columns = [desc[0] for desc in cursor.description] # названия колонок из 1 строки
 
-    file_path = f"{BASE_PATH}/101.csv"
+    file_path = f"{BASE_CSV_PATH}/1TASK/4_task/101.csv"
 
     process_name = "export_f101"
     v_start_time_log = datetime.now()
@@ -59,7 +61,7 @@ def clear_table():
     cursor.execute('TRUNCATE TABLE dm.dm_f101_round_f_v2;')
 
 def import_from_csv():
-    file_path = f"{BASE_PATH}/101.csv"
+    file_path = f"{BASE_CSV_PATH}/1TASK/4_task/101.csv"
 
     process_name = "import_f101"
     v_start_time_log = datetime.now()
