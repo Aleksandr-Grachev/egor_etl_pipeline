@@ -1,5 +1,6 @@
 \c taskdb
 
+-- Task1/1
 CREATE TABLE IF NOT EXISTS LOGS.ETL_LOG (
 	PROCESS_NAME VARCHAR(60) NOT NULL,
 	LOG_DATE DATE NOT NULL DEFAULT CURRENT_DATE, 
@@ -10,7 +11,6 @@ CREATE TABLE IF NOT EXISTS LOGS.ETL_LOG (
 	ERROR_MESSAGE TEXT,
 	duration INTERVAL
 );
-
 
 CREATE TABLE IF NOT EXISTS ds.ft_balance_f(
 	on_date       DATE NOT NULL,
@@ -88,4 +88,23 @@ CREATE TABLE IF NOT EXISTS ds.md_ledger_account_s (
 	IS_REVALUATION VARCHAR(1),
 	IS_CORRECT VARCHAR(1),
 	CONSTRAINT LEDGER_ACCOUNT_PKEY PRIMARY KEY (LEDGER_ACCOUNT, START_DATE)
+);
+
+-- task1/2
+CREATE TABLE IF NOT EXISTS dm.dm_account_turnover_f
+(
+    on_date date,
+    account_rk numeric,
+    credit_amount numeric(23,8),
+    credit_amount_rub numeric(23,8),
+    debet_amount numeric(23,8),
+    debet_amount_rub numeric(23,8)
+);
+
+CREATE TABLE IF NOT EXISTS dm.dm_account_balance_f
+(
+    on_date date NOT NULL,
+    account_rk numeric NOT NULL,
+    balance_out numeric(23,8),
+    balance_out_rub numeric(23,8)
 );
