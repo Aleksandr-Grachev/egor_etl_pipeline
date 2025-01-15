@@ -2,7 +2,7 @@ import psycopg2
 import csv
 from datetime import datetime
 
-BASE_PATH = r"C:\Users\bokla\OneDrive\Рабочий стол\NeoStudy\Project_Task\4"
+BASE_PATH = r"C:\Users\bokla\ETL_pipeline\1TASK\4_task"
 
 # подключение к БД
 conn = psycopg2.connect(
