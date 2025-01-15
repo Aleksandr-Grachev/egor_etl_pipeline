@@ -54,9 +54,9 @@ services:
     networks:
       - app-network
     volumes:
-      - .:/workspace:cached
       - ./app-vol/pgadmin/data:/var/lib/pgadmin
       - ./app-vol/pgadmin/servers.json:/pgadmin4/servers.json
+      - .:/var/lib/pgadmin/storage/${USER}_example.com/ #pgadmin see this as storage for sql files
 
   db:
     image: bitnami/postgresql:16
