@@ -7,11 +7,11 @@ BASE_CSV_PATH = os.getenv('ETL_PATH')
 
 # подключение к БД
 conn = psycopg2.connect(
-    dbname="dwh",
-    user="postgres",
-    password="2002",
-    host="localhost",
-    port="5432"
+    dbname = os.getenv("DB_NAME_DWH"),
+    user = os.getenv("DB_USER"),
+    password = os.getenv("DB_PASSWORD"),
+    host = os.getenv("DB_HOST"),
+    port = os.getenv("DB_PORT")
 )
 cursor = conn.cursor()
 
