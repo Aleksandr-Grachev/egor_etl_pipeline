@@ -8,8 +8,8 @@ DECLARE
 	v_duration_log interval;
 	v_rows_processed integer;
 
-    start_date DATE := i_OnDate - INTERVAL '1 month';
-    end_date DATE := i_OnDate - INTERVAL '1 day';
+    v_start_date DATE := i_OnDate - INTERVAL '1 month';
+    v_end_date DATE := i_OnDate - INTERVAL '1 day';
 BEGIN
 
 	v_start_time_log := clock_timestamp();
@@ -21,7 +21,7 @@ BEGIN
 	
     -- Удаляем старые данные
     DELETE FROM dm.dm_f101_round_f
-    WHERE from_date = start_date AND to_date = end_date;
+    WHERE from_date = v_start_date AND to_date = v_end_date;
 
     --Нахождение данных для вставки
     WITH
@@ -35,6 +35,8 @@ BEGIN
         FROM ds.md_account_d a
         JOIN ds.md_ledger_account_s la
             ON LEFT(a.account_number, 5) = la.ledger_account::varchar
+		WHERE a.data_actual_date <= v_end_date
+			  AND a.data_actual_end_date >= v_start_date
     ),
     balance_data AS (
         SELECT 
@@ -42,32 +44,32 @@ BEGIN
             ad.ledger_account,
             ad.characteristic,
             SUM(CASE 
-                    WHEN ad.currency_code IN (810, 643) AND ab.on_date = start_date - INTERVAL '1 day' 
+                    WHEN ad.currency_code IN (810, 643) AND ab.on_date = v_start_date - INTERVAL '1 day' 
                     THEN ab.balance_out_rub 
                     ELSE 0 
                 END) AS balance_in_rub,
             SUM(CASE 
-                    WHEN ad.currency_code NOT IN (810, 643) AND ab.on_date = start_date - INTERVAL '1 day' 
+                    WHEN ad.currency_code NOT IN (810, 643) AND ab.on_date = v_start_date - INTERVAL '1 day' 
                     THEN ab.balance_out_rub 
                     ELSE 0 
                 END) AS balance_in_val,
             SUM(CASE 
-                    WHEN ab.on_date = start_date - INTERVAL '1 day' 
+                    WHEN ab.on_date = v_start_date - INTERVAL '1 day' 
                     THEN ab.balance_out_rub 
                     ELSE 0 
                 END) AS balance_in_total,
             SUM(CASE 
-                    WHEN ad.currency_code IN (810, 643) AND ab.on_date = end_date 
+                    WHEN ad.currency_code IN (810, 643) AND ab.on_date = v_end_date 
                     THEN ab.balance_out_rub 
                     ELSE 0 
                 END) AS balance_out_rub,
             SUM(CASE 
-                    WHEN ad.currency_code NOT IN (810, 643) AND ab.on_date = end_date 
+                    WHEN ad.currency_code NOT IN (810, 643) AND ab.on_date = v_end_date 
                     THEN ab.balance_out_rub 
                     ELSE 0 
                 END) AS balance_out_val,
             SUM(CASE 
-                    WHEN ab.on_date = end_date 
+                    WHEN ab.on_date = v_end_date 
                     THEN ab.balance_out_rub 
                     ELSE 0 
                 END) AS balance_out_total
@@ -82,32 +84,32 @@ BEGIN
             ad.ledger_account,
             ad.characteristic,
             SUM(CASE 
-                    WHEN ad.currency_code IN (810, 643) AND ac.on_date BETWEEN start_date AND end_date 
+                    WHEN ad.currency_code IN (810, 643) AND ac.on_date BETWEEN v_start_date AND v_end_date 
                     THEN ac.debet_amount_rub 
                     ELSE 0 
                 END) AS turn_deb_rub,
             SUM(CASE 
-                    WHEN ad.currency_code NOT IN (810, 643) AND ac.on_date BETWEEN start_date AND end_date 
+                    WHEN ad.currency_code NOT IN (810, 643) AND ac.on_date BETWEEN v_start_date AND v_end_date 
                     THEN ac.debet_amount_rub 
                     ELSE 0 
                 END) AS turn_deb_val,
             SUM(CASE 
-                    WHEN ac.on_date BETWEEN start_date AND end_date 
+                    WHEN ac.on_date BETWEEN v_start_date AND v_end_date 
                     THEN ac.debet_amount_rub 
                     ELSE 0 
                 END) AS turn_deb_total,
             SUM(CASE 
-                    WHEN ad.currency_code IN (810, 643) AND ac.on_date BETWEEN start_date AND end_date 
+                    WHEN ad.currency_code IN (810, 643) AND ac.on_date BETWEEN v_start_date AND v_end_date 
                     THEN ac.credit_amount_rub 
                     ELSE 0 
                 END) AS turn_cre_rub,
             SUM(CASE 
-                    WHEN ad.currency_code NOT IN (810, 643) AND ac.on_date BETWEEN start_date AND end_date 
+                    WHEN ad.currency_code NOT IN (810, 643) AND ac.on_date BETWEEN v_start_date AND v_end_date 
                     THEN ac.credit_amount_rub 
                     ELSE 0 
                 END) AS turn_cre_val,
             SUM(CASE 
-                    WHEN ac.on_date BETWEEN start_date AND end_date 
+                    WHEN ac.on_date BETWEEN v_start_date AND v_end_date 
                     THEN ac.credit_amount_rub 
                     ELSE 0 
                 END) AS turn_cre_total
@@ -126,8 +128,8 @@ BEGIN
         balance_out_rub, balance_out_val, balance_out_total
     )
     SELECT 
-        start_date AS from_date,
-        end_date AS to_date,
+        v_start_date AS from_date,
+        v_end_date AS to_date,
         bd.chapter,
         bd.ledger_account,
         bd.characteristic,
@@ -164,3 +166,7 @@ $BODY$;
 
 --Вызов
 CALL dm.fill_f101_round_f('2018-02-01');
+
+SELECT * FROM dm.dm_f101_round_f
+
+TRUNCATE TABLE dm.dm_f101_round_f
