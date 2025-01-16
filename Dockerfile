@@ -16,10 +16,16 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
+RUN install_packages libpq-dev
 RUN install_packages postgresql-client
 
 RUN mkdir /.vscode-server /workspace
 RUN chown -R $USERNAME /.vscode-server /workspace
+
+# Устанавливаем Python зависимости проекта
+WORKDIR /app
+COPY ./app-vol/app/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 USER $USERNAME
 

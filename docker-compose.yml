@@ -49,11 +49,12 @@ services:
     command: sleep infinity
     environment:
       <<: *db-common
+      ETL_PATH: /data
     networks:
       - app-network
     volumes:
       - .:/workspace:cached # Mount the root folder that contains .git
-      - ./1TASK:/app
+      - ./1TASK:/app/task1
       - ./app-vol/csv:/data/csv
 
   pg-admin:
