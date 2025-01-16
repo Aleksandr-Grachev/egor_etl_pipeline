@@ -166,7 +166,3 @@ $BODY$;
 
 --Вызов
 CALL dm.fill_f101_round_f('2018-02-01');
-
-SELECT * FROM dm.dm_f101_round_f
-
-TRUNCATE TABLE dm.dm_f101_round_f
