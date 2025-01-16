@@ -159,6 +159,16 @@ BEGIN
 	UPDATE logs.etl_log
     SET END_TIME = v_end_time_log, duration = v_duration_log, STATUS = 'Success',  ROWS_PROCESSED = v_rows_processed
     WHERE PROCESS_NAME = 'fill_f101_round_f' AND LOG_DATE = CURRENT_DATE AND STATUS = 'Start';
+
+EXCEPTION
+    WHEN OTHERS THEN
+        v_end_time_log := clock_timestamp();
+        v_duration_log := v_end_time_log - v_start_time_log;
+        UPDATE logs.etl_log
+        SET END_TIME = v_end_time_log, DURATION = v_duration_log, STATUS = 'Failed', ROWS_PROCESSED = v_rows_processed, 
+            ERROR_MESSAGE = SQLERRM
+        WHERE PROCESS_NAME = 'fill_f101_round_f' AND LOG_DATE = CURRENT_DATE AND STATUS = 'Start';
+        RAISE;
 	
 END;
 $BODY$;
@@ -166,7 +176,3 @@ $BODY$;
 
 --Вызов
 CALL dm.fill_f101_round_f('2018-02-01');
-
-SELECT * FROM dm.dm_f101_round_f
-
-TRUNCATE TABLE dm.dm_f101_round_f
