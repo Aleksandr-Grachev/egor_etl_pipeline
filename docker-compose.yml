@@ -2,6 +2,13 @@ networks:
   app-network:
     name: appNet
 
+x-db-common: &db-common
+  DB_NAME: $DB_NAME #task1/4 req
+  DB_USER: $DB_USER
+  DB_PASSWORD: $DB_PASSWORD
+  DB_HOST: $DB_HOST
+  DB_PORT: $DB_PORT
+
 x-airflow-common: &airflow-common
   image: bitnami/airflow:2.10.4
   networks:
@@ -15,23 +22,24 @@ x-airflow-common: &airflow-common
     - ./1TASK/1_task/Task_ETL:/opt/bitnami/airflow/dags/task1
 
 x-airflow-env: &airflow-env
+  <<: *db-common
   AIRFLOW_FERNET_KEY: 46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
   AIRFLOW_SECRET_KEY: a25mQ1FHTUh3MnFRSk5KMEIyVVU2YmN0VGRyYTVXY08=
   AIRFLOW_EXECUTOR: CeleryExecutor
-  AIRFLOW_DATABASE_HOST: db
+  AIRFLOW_DATABASE_HOST: ${DB_HOST}
   AIRFLOW_DATABASE_NAME: airflowdb
   AIRFLOW_LOAD_EXAMPLES: no
-  AIRFLOW_CONN_POSTGRES_DB: 'postgresql://testus@db:5432/taskdb'
+  AIRFLOW_CONN_POSTGRES_DB: 'postgresql://${DB_USER}@${DB_HOST}:${DB_PORT}/${DB_NAME}'
   #see https://airflow.apache.org/docs/apache-airflow/stable/howto/variable.html
   AIRFLOW_VAR_MY_PATH: /data
+  ETL_PATH: /data
 
 services:
 
   app:
-    image: custom/postgresql-client-16
+    image: custom/etl-app
     depends_on:
       - db
-      - redis
     build:
       context: .
       args:
@@ -39,10 +47,15 @@ services:
         - USER_UID=$USER_UID
         - USERNAME=$USER
     command: sleep infinity
+    environment:
+      <<: *db-common
+      ETL_PATH: /data
     networks:
       - app-network
     volumes:
       - .:/workspace:cached # Mount the root folder that contains .git
+      - ./1TASK:/app/task1
+      - ./app-vol/csv:/data/csv
 
   pg-admin:
     image: dpage/pgadmin4:8.14
