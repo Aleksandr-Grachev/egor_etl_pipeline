@@ -1,4 +1,4 @@
-FROM bitnami/minideb:bookworm
+FROM bitnami/python:3.13.1
 
 ARG USERNAME
 ARG USER_UID
