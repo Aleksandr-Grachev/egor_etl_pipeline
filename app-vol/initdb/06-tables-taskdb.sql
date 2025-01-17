@@ -142,3 +142,115 @@ CREATE TABLE IF NOT EXISTS dm.dm_f101_round_f
     balance_out_total numeric(23,8),
     r_balance_out_total numeric(23,8)
 );
+
+-- task 2/2
+
+CREATE TABLE dm.account_balance_turnover (
+    account_rk bigint NOT NULL,
+    currency_name text,
+    department_rk bigint NOT NULL,
+    effective_date date NOT NULL,
+    account_in_sum numeric,
+    account_out_sum numeric
+);
+
+CREATE TABLE IF NOT EXISTS dm.client (
+    client_rk bigint NOT NULL,
+    effective_from_date date NOT NULL,
+    effective_to_date date NOT NULL,
+    account_rk bigint,
+    address_rk bigint,
+    department_rk bigint,
+    card_type_code text,
+    client_id text,
+    counterparty_type_cd text,
+    black_list_flag boolean,
+    client_open_dttm timestamp without time zone,
+    bankruptcy_rk bigint
+);
+
+CREATE TABLE IF NOT EXISTS dm.dict_currency (
+    currency_cd text NOT NULL,
+    currency_name text NOT NULL,
+    effective_from_date date NOT NULL,
+    effective_to_date date NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dm.loan_holiday_info (
+    deal_rk bigint NOT NULL,
+    effective_from_date date NOT NULL,
+    effective_to_date date NOT NULL,
+    agreement_rk bigint,
+    account_rk bigint,
+    client_rk bigint,
+    department_rk bigint,
+    product_rk bigint,
+    product_name text,
+    deal_type_cd text,
+    deal_start_date date,
+    deal_name text,
+    deal_number text,
+    deal_sum numeric,
+    loan_holiday_type_cd text,
+    loan_holiday_start_date date,
+    loan_holiday_finish_date date,
+    loan_holiday_fact_finish_date date,
+    loan_holiday_finish_flg boolean,
+    loan_holiday_last_possible_date date
+);
+
+CREATE TABLE IF NOT EXISTS rd.account (
+    account_rk bigint NOT NULL,
+    currency_cd text,
+    account_number text,
+    account_open_date date,
+    account_close_date date,
+    department_rk bigint NOT NULL,
+    employee_rk bigint NOT NULL,
+    effective_from_date date NOT NULL,
+    effective_to_date date NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS rd.account_balance (
+    account_rk bigint NOT NULL,
+    effective_date date,
+    account_in_sum numeric,
+    account_out_sum numeric
+);
+
+CREATE TABLE IF NOT EXISTS rd.deal_info (
+    deal_rk bigint NOT NULL,
+    deal_num text,
+    deal_name text,
+    deal_sum numeric,
+    client_rk bigint NOT NULL,
+    account_rk bigint NOT NULL,
+    agreement_rk bigint NOT NULL,
+    deal_start_date date,
+    department_rk bigint,
+    product_rk bigint,
+    deal_type_cd text,
+    effective_from_date date NOT NULL,
+    effective_to_date date NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS rd.loan_holiday (
+    deal_rk bigint NOT NULL,
+    loan_holiday_type_cd text,
+    loan_holiday_start_date date,
+    loan_holiday_finish_date date,
+    loan_holiday_fact_finish_date date,
+    loan_holiday_finish_flg boolean,
+    loan_holiday_last_possible_date date,
+    effective_from_date date NOT NULL,
+    effective_to_date date NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS rd.product (
+    product_rk bigint NOT NULL,
+    product_name text,
+    effective_from_date date NOT NULL,
+    effective_to_date date NOT NULL
+);
+
+
