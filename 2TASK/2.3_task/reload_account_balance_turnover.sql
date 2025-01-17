@@ -3,9 +3,9 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     -- Очищаем целевую таблицу
-    TRUNCATE TABLE dm.dict_currency;
+    TRUNCATE TABLE dm.account_balance_turnover;
 
-    INSERT INTO dm.dict_currency (
+    INSERT INTO dm.account_balance_turnover (
         account_rk,
         currency_name,
         department_rk,
