@@ -113,3 +113,5 @@ BEGIN
 
 END;
 $$;
+
+CALL dm.reload_data_into_holiday_info();
