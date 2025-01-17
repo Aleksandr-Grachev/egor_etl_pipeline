@@ -55,6 +55,7 @@ services:
     volumes:
       - .:/workspace:cached # Mount the root folder that contains .git
       - ./1TASK:/app/task1
+      - ./2TASK:/app/task2
       - ./app-vol/csv:/data/csv
 
   pg-admin:
