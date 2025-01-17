@@ -67,6 +67,7 @@ BEGIN
         LEFT JOIN product p
             ON p.product_rk = d.product_rk
            AND p.effective_from_date = d.effective_from_date
+		   --AND d.deal_name = p.product_name
     )
 	
     INSERT INTO dm.loan_holiday_info (
