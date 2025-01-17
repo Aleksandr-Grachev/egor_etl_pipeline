@@ -11,6 +11,7 @@
         "ms-azuretools.vscode-docker",
         "cweijan.vscode-postgresql-client2",
         "cweijan.dbclient-jdbc",
+        "mtxr.sqltools-driver-pg",
         "inferrinizzard.prettier-sql-vscode",
         "ms-python.python",
         "mechatroner.rainbow-csv"
