@@ -63,6 +63,16 @@ BEGIN
     SET END_TIME = v_end_time, duration = v_duration, STATUS = 'Success', ROWS_PROCESSED = v_rows_processed
     WHERE PROCESS_NAME = 'fill_account_turnover-' || i_ondate::text AND LOG_DATE = CURRENT_DATE AND STATUS = 'Start';
 
+EXCEPTION
+    WHEN OTHERS THEN
+        v_end_time := clock_timestamp();
+        v_duration := v_end_time - v_start_time_log;
+        UPDATE logs.etl_log
+        SET END_TIME = v_end_time, DURATION = v_duration, STATUS = 'Failed', ROWS_PROCESSED = v_rows_processed, 
+            ERROR_MESSAGE = SQLERRM
+        WHERE PROCESS_NAME = 'fill_f101_round_f' AND LOG_DATE = CURRENT_DATE AND STATUS = 'Start';
+        RAISE;
+
 END;
 $BODY$;
 
