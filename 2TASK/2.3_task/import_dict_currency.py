@@ -7,7 +7,7 @@ BASE_CSV_PATH = os.getenv('ETL_PATH')
 
 # подключение к БД
 conn = psycopg2.connect(
-    dbname = os.getenv("DB_NAME_DWH"),
+    dbname = os.getenv("DB_NAME"),
     user = os.getenv("DB_USER"),
     password = os.getenv("DB_PASSWORD"),
     host = os.getenv("DB_HOST"),
@@ -17,7 +17,7 @@ cursor = conn.cursor()
 
 
 def import_dict_curency():
-    file_path = f"{BASE_CSV_PATH}/2TASK/2.3_task/dict_currency.csv"
+    file_path = f"{BASE_CSV_PATH}/csv/task2.2/dict_currency.csv"
 
     with open(file_path, mode='r', encoding='utf-8') as file:
         reader = csv.reader(file)
