@@ -37,7 +37,7 @@ def export_to_csv():
         rows = cursor.fetchall()  # все строки данных
         columns = [desc[0] for desc in cursor.description]  # названия колонок из 1 строки
 
-        file_path = f"{BASE_CSV_PATH}/csv/task4/101.csv"
+        file_path = f"{BASE_CSV_PATH}/csv/task1.4/101.csv"
 
         process_name = "export_f101"
         v_start_time_log = datetime.now()
@@ -69,7 +69,7 @@ def clear_table():
     cursor.execute('TRUNCATE TABLE dm.dm_f101_round_f_v2;')
 
 def import_from_csv():
-    file_path = f"{BASE_CSV_PATH}/csv/task4/101.csv"
+    file_path = f"{BASE_CSV_PATH}/csv/task1.4/101.csv"
 
     process_name = "import_f101"
     v_start_time_log = datetime.now()
