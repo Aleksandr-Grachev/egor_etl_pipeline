@@ -1,11 +1,11 @@
 CREATE OR REPLACE PROCEDURE dm.reload_account_balance_turnover()
 LANGUAGE plpgsql
-AS $$
+AS $BODY$
 BEGIN
     -- Очищаем целевую таблицу
-    TRUNCATE TABLE dm.dict_currency;
+    TRUNCATE TABLE dm.account_balance_turnover;
 
-    INSERT INTO dm.dict_currency (
+    INSERT INTO dm.account_balance_turnover (
         account_rk,
         currency_name,
         department_rk,
@@ -21,7 +21,7 @@ BEGIN
     	   ab.account_out_sum
     FROM rd.account a
     LEFT JOIN rd.account_balance ab ON a.account_rk = ab.account_rk
-    LEFT JOIN dm.dict_currency dc ON a.currency_cd = dc.currency_cd
-
+    LEFT JOIN dm.dict_currency dc ON a.currency_cd = dc.currency_cd;
+	
 END;
-$$;
+$BODY$;
