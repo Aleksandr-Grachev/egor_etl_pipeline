@@ -9,7 +9,7 @@ BASE_CSV_PATH = os.getenv('ETL_PATH')
 
 # подключение к БД
 conn = psycopg2.connect(
-    dbname = os.getenv("DB_NAME_DWH"),
+    dbname = os.getenv("DB_NAME"),
     user = os.getenv("DB_USER"),
     password = os.getenv("DB_PASSWORD"),
     host = os.getenv("DB_HOST"),
@@ -19,7 +19,7 @@ cursor = conn.cursor()
 
 
 def import_product():
-    file_path = f"{BASE_CSV_PATH}/2TASK/2.2_task/sources/product_info.csv"
+    file_path = f"{BASE_CSV_PATH}/csv/task2.2/product_info.csv"
 
     with open(file_path, mode='r', encoding='windows-1251') as file:
         reader = csv.reader(file)
@@ -50,7 +50,7 @@ def import_product():
 
 
 def import_deal_info():
-    file_path = f"{BASE_CSV_PATH}/2TASK/2.2_task/sources/deal_info.csv"
+    file_path = f"{BASE_CSV_PATH}/csv/task2.2/deal_info.csv"
 
     with open(file_path, mode='r', encoding='windows-1251') as file:
         reader = csv.reader(file)

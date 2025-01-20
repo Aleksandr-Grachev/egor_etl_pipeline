@@ -40,7 +40,7 @@ def import_product():
     conn.commit()
 
 def import_deal_info():
-    file_path = f"{BASE_CSV_PATH}/csv/task2.2//deal_info.csv"
+    file_path = f"{BASE_CSV_PATH}/csv/task2.2/deal_info.csv"
 
     with open(file_path, mode='r', encoding='windows-1251') as file:
         reader = csv.reader(file)
