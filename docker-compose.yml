@@ -18,8 +18,8 @@ x-airflow-common: &airflow-common
     - redis
   volumes:
     - ./app-vol/csv:/data/csv
-    - ./1TASK/1_task/Scripts/sql:/data/sql/task1
-    - ./1TASK/1_task/Task_ETL:/opt/bitnami/airflow/dags/task1
+    - ./1TASK/1_task/Scripts/sql:/data/sql/task1.1
+    - ./1TASK/1_task/Task_ETL:/opt/bitnami/airflow/dags/task1.1
 
 x-airflow-env: &airflow-env
   <<: *db-common

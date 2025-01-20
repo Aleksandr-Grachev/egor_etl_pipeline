@@ -31,7 +31,7 @@ def log_etl_process(connection, process_name, start_time, end_time, status, rows
 def load_ft_balance_f():
     postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv(f"{PATH}/csv/task1/ft_balance_f.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1.1/ft_balance_f.csv", delimiter=";", encoding="utf-8")
 
     
     df['ON_DATE'] = pd.to_datetime(df['ON_DATE'], format='%d.%m.%Y').dt.date
@@ -91,7 +91,7 @@ def load_ft_balance_f():
 def load_ft_posting_f():
     postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv(f"{PATH}/csv/task1/ft_posting_f.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1.1/ft_posting_f.csv", delimiter=";", encoding="utf-8")
     
     df['OPER_DATE'] = pd.to_datetime(df['OPER_DATE'], format='%d-%m-%Y').dt.date
     df = df.where(pd.notnull(df), None)
@@ -147,7 +147,7 @@ def load_ft_posting_f():
 def load_md_account_d():
     postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
-    df = pd.read_csv(f"{PATH}/csv/task1/md_account_d.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1.1/md_account_d.csv", delimiter=";", encoding="utf-8")
 
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
     df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d').dt.date
@@ -213,7 +213,7 @@ def load_md_currency_d():
     postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
     df = pd.read_csv(
-        f"{PATH}/csv/task1/md_currency_d.csv",
+        f"{PATH}/csv/task1.1/md_currency_d.csv",
         delimiter=";",
         encoding="windows-1252",
         dtype={"CURRENCY_CODE": str}  # сохранение ведущих нулей
@@ -281,7 +281,7 @@ def load_md_exchange_rate_d():
     postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
     
-    df = pd.read_csv(f"{PATH}/csv/task1/md_exchange_rate_d.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1.1/md_exchange_rate_d.csv", delimiter=";", encoding="utf-8")
     
     df['DATA_ACTUAL_DATE'] = pd.to_datetime(df['DATA_ACTUAL_DATE'], format='%Y-%m-%d').dt.date
     df['DATA_ACTUAL_END_DATE'] = pd.to_datetime(df['DATA_ACTUAL_END_DATE'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -347,7 +347,7 @@ def load_md_ledger_account_s():
     postgres_hook = PostgresHook("postgres_db")
     engine = postgres_hook.get_sqlalchemy_engine()
 
-    df = pd.read_csv(f"{PATH}/csv/task1/md_ledger_account_s.csv", delimiter=";", encoding="utf-8")
+    df = pd.read_csv(f"{PATH}/csv/task1.1/md_ledger_account_s.csv", delimiter=";", encoding="utf-8")
     
     df['START_DATE'] = pd.to_datetime(df['START_DATE'], format='%Y-%m-%d').dt.date
     df['END_DATE'] = pd.to_datetime(df['END_DATE'], format='%Y-%m-%d', errors='coerce').dt.date

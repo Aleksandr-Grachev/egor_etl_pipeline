@@ -16,7 +16,7 @@ PATH = Variable.get("my_path")
 conf.set("core", "template_searchpath", PATH)
 
 def insert_data(table_name):
-    file_path = f"{PATH}/csv/task1/{table_name}.csv"
+    file_path = f"{PATH}/csv/task1.1/{table_name}.csv"
     
     with open(file_path, 'rb') as file:
         raw_data = file.read()
@@ -56,7 +56,7 @@ with DAG(
     sql_trunc_stage = SQLExecuteQueryOperator(
         task_id="sql_trunc_stage",
         conn_id="postgres_db",
-        sql = "sql/task1/sql_trunc_stage.sql"
+        sql = "sql/task1.1/sql_trunc_stage.sql"
     )
 
     ft_balance_f = PythonOperator(
@@ -102,43 +102,43 @@ with DAG(
     # sql_create_table = SQLExecuteQueryOperator(
     #     task_id="sql_create_table",
     #     conn_id="postgres_db",
-    #     sql = "sql/task1/sql_create_table.sql"
+    #     sql = "sql/task1.1/sql_create_table.sql"
     # )
 
     sql_ft_balance_f = SQLExecuteQueryOperator(
         task_id="sql_ft_balance_f",
         conn_id="postgres_db",
-        sql = "sql/task1/ft_balance_f.sql"
+        sql = "sql/task1.1/ft_balance_f.sql"
     )
 
     sql_ft_posting_f = SQLExecuteQueryOperator(
         task_id="sql_ft_posting_f",
         conn_id="postgres_db",
-        sql = "sql/task1/ft_posting_f.sql"
+        sql = "sql/task1.1/ft_posting_f.sql"
     )
 
     sql_md_account_d = SQLExecuteQueryOperator(
         task_id="sql_md_account_d",
         conn_id="postgres_db",
-        sql = "sql/task1/md_account_d.sql"
+        sql = "sql/task1.1/md_account_d.sql"
     )
 
     sql_md_currency_d = SQLExecuteQueryOperator(
         task_id="sql_md_currency_d",
         conn_id="postgres_db",
-        sql = "sql/task1/md_currency_d.sql"
+        sql = "sql/task1.1/md_currency_d.sql"
     )
 
     sql_md_exchange_rate_d = SQLExecuteQueryOperator(
         task_id="sql_md_exchange_rate_d",
         conn_id="postgres_db",
-        sql = "sql/task1/md_exchange_rate_d.sql"
+        sql = "sql/task1.1/md_exchange_rate_d.sql"
     )
 
     sql_md_ledger_account_s = SQLExecuteQueryOperator(
         task_id="sql_md_ledger_account_s",
         conn_id="postgres_db",
-        sql = "sql/task1/md_ledger_account_s.sql"
+        sql = "sql/task1.1/md_ledger_account_s.sql"
     )
 
     end = DummyOperator(
